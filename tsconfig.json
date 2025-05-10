@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "commonjs",
+    // "outDir": "./dist",
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2020",
+
+    /* Allow importing from the src/ directory */
+    // "rootDir": "./src",
+    "baseUrl": "./",
+    "paths": {
+      "#src/*": ["src/*"],
+    },
+
+    /* Additional rules */
+    "noImplicitAny": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  }
+}

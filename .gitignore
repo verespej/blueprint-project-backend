@@ -1,0 +1,50 @@
+# Local runs
+.local_data/
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# Node.js
+node_modules/
+dist/
+build/
+.env
+.env.*
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+.pnpm-debug.log
+.nyc_output/
+coverage/
+.cache/
+.next/
+out/
+.tmp/
+.temp/
+
+# TypeScript output
+*.tsbuildinfo
+
+# Editor folders
+.vscode/
+.idea/
+.vs/
+*.code-workspace
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+*.sublime-settings
+
+# OS Trash
+.Trashes
+*.swp
+*~
