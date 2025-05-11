@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "7beab4e4-3279-487e-aeb7-30d6650cb599",
+  "id": "2f56d9ad-c2f2-438b-bf59-73b066c5a07f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "assessment_instance_responses": {
@@ -32,7 +32,7 @@
           "name": "answer_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "created_at": {

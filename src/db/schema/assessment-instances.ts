@@ -1,3 +1,4 @@
+import { InferModel } from 'drizzle-orm';
 import { index, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core';
 
 import { idFieldSchema } from './common/id-fields';
@@ -43,15 +44,7 @@ export const assessmentInstancesTable = sqliteTable('assessment_instances', {
   };
 });
 
-export type TypAssessmentInstance = {
-  id: string;
-
-  providerId: string;
-  patientId: string;
-  assessmentId: string;
-  slug: string;
-  sentAt?: string | null;
-
-  createdAt: string;
-  updatedAt: string;
-};
+export type TypAssessmentInstance = InferModel<
+  typeof assessmentInstancesTable,
+  'select'
+>;

@@ -1,3 +1,4 @@
+import { InferModel } from 'drizzle-orm';
 import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 import { assessmentSectionsTable } from './assessment-sections';
@@ -29,12 +30,21 @@ import { timestampFieldsSchemas } from './common/timestamp-fields';
 // This would create redundancy, but provide more flexibility in
 // creation and customization of assessments.
 
+export const ASSESSMENT_SECTION_ANSWER_VALUE_TYPES = {
+  NUMBER: 'number',
+  TEXT: 'text',
+} as const;
+
+export type TypAssessmentSectionAnswerValueType = typeof ASSESSMENT_SECTION_ANSWER_VALUE_TYPES[
+  keyof typeof ASSESSMENT_SECTION_ANSWER_VALUE_TYPES
+];
+
 export const assessmentSectionAnswersTable = sqliteTable('assessment_section_answers', {
   id: idFieldSchema().notNull().primaryKey(),
 
   assessmentSectionId: text('assessment_section_id').notNull().references(() => assessmentSectionsTable.id),
   title: text().notNull(),
-  valueType: text().notNull(),
+  valueType: text().$type<TypAssessmentSectionAnswerValueType>().notNull(),
   value: text().notNull(),
 
   displayOrder: integer().notNull(),
@@ -49,25 +59,7 @@ export const assessmentSectionAnswersTable = sqliteTable('assessment_section_ans
   };
 });
 
-export const ASSESSMENT_SECTION_ANSWER_VALUE_TYPES = {
-  NUMBER: 'number',
-  TEXT: 'text',
-} as const;
-
-export type TypAssessmentSectionAnswerValueType = typeof ASSESSMENT_SECTION_ANSWER_VALUE_TYPES[
-  keyof typeof ASSESSMENT_SECTION_ANSWER_VALUE_TYPES
-];
-
-export type TypAssessmentSectionAnswer = {
-  id: string;
-
-  assessmentSectionId: string;
-  title: string;
-  valueType: TypAssessmentSectionAnswerValueType;
-  value: string;
-
-  displayOrder: number;
-
-  createdAt: string;
-  updatedAt: string;
-};
+export type TypAssessmentSectionAnswer = InferModel<
+  typeof assessmentSectionAnswersTable,
+  'select'
+>;

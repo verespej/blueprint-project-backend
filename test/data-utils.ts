@@ -1,9 +1,11 @@
-import { sql } from 'drizzle-orm';
+import { InferModel, sql } from 'drizzle-orm';
 import { v4 as uuid } from 'uuid';
 
 import {
   ASSESSMENT_SECTION_TYPES,
   ASSESSMENT_SECTION_ANSWER_VALUE_TYPES,
+  assessmentInstanceResponsesTable,
+  assessmentInstancesTable,
   assessmentSectionAnswersTable,
   assessmentSectionQuestionsTable,
   assessmentSectionsTable,
@@ -11,9 +13,19 @@ import {
   db,
   disordersTable,
   MIGRATIONS_TABLE_NAME,
+  TypDisorder,
+  TypAssessment,
+  TypAssessmentInstance,
+  TypAssessmentResponse,
+  TypAssessmentSection,
+  TypAssessmentSectionAnswer,
+  TypAssessmentSectionQuestion,
+  TypUser,
+  USER_TYPES,
+  usersTable,
 } from '#src/db';
 
-function randNumber({
+export function randNumber({
   min = 0, // Inclusive
   max = 1001, // Exclusive
   floatingPoint = false,
@@ -49,7 +61,7 @@ export async function clearDb() {
 export async function createDisorder({
   name = uuid(),
   displayName = uuid(),
-} = {}) {
+} = {}): Promise<TypDisorder> {
   return await db.insert(disordersTable)
     .values({
       name,
@@ -65,7 +77,7 @@ export async function createAssessment({
   fullName = uuid(),
   locked = false,
   name = uuid(),
-}) {
+}): Promise<TypAssessment> {
   return await db.insert(assessmentsTable)
     .values({
       disorderId,
@@ -82,7 +94,7 @@ export async function createAssessmentSection({
   assessmentId,
   title = uuid(),
   type = ASSESSMENT_SECTION_TYPES.STANDARD,
-}) {
+}): Promise<TypAssessmentSection> {
   return await db.insert(assessmentSectionsTable)
     .values({
       assessmentId,
@@ -98,7 +110,7 @@ export async function createAssessmentQuestion({
   disorderId,
   displayOrder = 0,
   title = uuid(),
-}) {
+}): Promise<TypAssessmentSectionQuestion> {
   return await db.insert(assessmentSectionQuestionsTable)
     .values({
       assessmentSectionId,
@@ -116,7 +128,7 @@ export async function createAssessmentAnswer({
   title = uuid(),
   value = randNumber(),
   valueType = ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
-}) {
+}): Promise<TypAssessmentSectionAnswer> {
   return await db.insert(assessmentSectionAnswersTable)
     .values({
       assessmentSectionId,
@@ -124,6 +136,59 @@ export async function createAssessmentAnswer({
       title,
       value: value.toString(),
       valueType,
+    })
+    .returning()
+    .get();
+}
+
+export async function createUser({
+  email = `${uuid()}@example.com`,
+  familyName = uuid(),
+  givenName = uuid(),
+  password = uuid(),
+  type = USER_TYPES.PROVIDER,
+}: Partial<InferModel<typeof usersTable, 'insert'>>): Promise<TypUser> {
+  return await db.insert(usersTable)
+    .values({
+      email,
+      familyName,
+      givenName,
+      password,
+      type,
+    })
+    .returning()
+    .get();
+}
+
+export async function createAssessmentInstance({
+  providerId,
+  patientId,
+  assessmentId,
+  slug = uuid(),
+  sentAt = new Date().toISOString(),
+}): Promise<TypAssessmentInstance> {
+  return await db.insert(assessmentInstancesTable)
+    .values({
+      providerId,
+      patientId,
+      assessmentId,
+      slug,
+      sentAt,
+    })
+    .returning()
+    .get();
+}
+
+export async function createAssessmentResponse({
+  assessmentInstanceId,
+  questionId,
+  answerId,
+}): Promise<TypAssessmentResponse> {
+  return await db.insert(assessmentInstanceResponsesTable)
+    .values({
+      assessmentInstanceId,
+      questionId,
+      answerId,
     })
     .returning()
     .get();

@@ -1,3 +1,4 @@
+import { InferModel } from 'drizzle-orm';
 import { index, integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core';
 
 import { idFieldSchema } from './common/id-fields';
@@ -40,7 +41,7 @@ export const assessmentsTable = sqliteTable('assessments', {
   displayName: text('display_name'),
   disorderId: text('disorder_id').notNull().references(() => disordersTable.id),
 
-  locked: integer({ mode: 'boolean' }).notNull(),
+  locked: integer({ mode: 'boolean' }).notNull(), // Stored as int in DB, but set as boolean on object
 
   ...timestampFieldsSchemas,
 }, (table) => {
@@ -51,16 +52,4 @@ export const assessmentsTable = sqliteTable('assessments', {
   };
 });
 
-export type TypAssessment = {
-  id: string;
-
-  name: string;
-  fullName: string;
-  displayName?: string | null;
-  disorderId: string;
-
-  locked: boolean; // Stored as int in DB
-
-  createdAt: string;
-  updatedAt: string;
-};
+export type TypAssessment = InferModel<typeof assessmentsTable, 'select'>;

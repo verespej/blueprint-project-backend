@@ -1,3 +1,4 @@
+import { InferModel } from 'drizzle-orm';
 import { integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core';
 
 import { assessmentSectionsTable } from './assessment-sections';
@@ -43,15 +44,7 @@ export const assessmentSectionQuestionsTable = sqliteTable('assessment_section_q
   };
 });
 
-export type TypAssessmentSectionQuestion = {
-  id: string;
-
-  assessmentSectionId: string;
-  title: string;
-  disorderId: string;
-
-  displayOrder: number;
-
-  createdAt: string;
-  updatedAt: string;
-};
+export type TypAssessmentSectionQuestion = InferModel<
+  typeof assessmentSectionQuestionsTable,
+  'select'
+>;

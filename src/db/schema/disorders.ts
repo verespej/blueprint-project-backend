@@ -1,3 +1,4 @@
+import { InferModel } from 'drizzle-orm';
 import { sqliteTable, text, unique } from 'drizzle-orm/sqlite-core';
 
 import { idFieldSchema } from './common/id-fields';
@@ -32,12 +33,4 @@ export const disordersTable = sqliteTable('disorders', {
   };
 });
 
-export type TypDisorder = {
-  id: string;
-
-  name: string;
-  displayName?: string | null;
-
-  createdAt: string;
-  updatedAt: string;
-};
+export type TypDisorder = InferModel<typeof disordersTable, 'select'>;

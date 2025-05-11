@@ -1,8 +1,45 @@
+import { InferModel } from 'drizzle-orm';
 import { index, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 import { assessmentsTable } from './assessments';
 import { idFieldSchema } from './common/id-fields';
 import { timestampFieldsSchemas } from './common/timestamp-fields';
+
+export const SUBMISSION_RULE_FILTER_TYPES = {
+  QUESTION_DOMAIN: 'question_domain',
+} as const;
+
+export type TypSubmissionRuleFilterType = typeof SUBMISSION_RULE_FILTER_TYPES[
+  keyof typeof SUBMISSION_RULE_FILTER_TYPES
+];
+
+export const SUBMISSION_RULE_SCORE_OPS = {
+  SUM: 'sum',
+} as const;
+
+export type TypSubmissionRuleScoreOp = typeof SUBMISSION_RULE_SCORE_OPS[
+  keyof typeof SUBMISSION_RULE_SCORE_OPS
+];
+
+export const SUBMISSION_RULE_EVAL_OPS = {
+  EQUAL: 'eq',
+  GREATER_THAN: 'gt',
+  GREATER_THAN_OR_EQUAL: 'geq',
+  LESS_THAN: 'lt',
+  LESS_THAN_OR_EQUAL: 'leq',
+} as const;
+
+export type TypSubmissionRuleEvalOp = typeof SUBMISSION_RULE_EVAL_OPS[
+  keyof typeof SUBMISSION_RULE_EVAL_OPS
+];
+
+export const SUBMISSION_RULE_ACTION_TYPES = {
+  ASSIGN_ASSESSMENT: 'assign_assessment',
+} as const;
+
+export type TypSubmissionRuleActionType = typeof SUBMISSION_RULE_ACTION_TYPES[
+  keyof typeof SUBMISSION_RULE_ACTION_TYPES
+];
 
 /* Submission rules table
  *
@@ -41,15 +78,15 @@ export const submissionRulesTable = sqliteTable('submission_rules', {
 
   assessmentId: text('assessment_id').notNull().references(() => assessmentsTable.id),
 
-  filterType: text('filter_type').notNull(),
+  filterType: text('filter_type').$type<TypSubmissionRuleFilterType>().notNull(),
   filterValue: text('filter_value').notNull(),
 
-  scoreOperation: text('score_operation').notNull(),
+  scoreOperation: text('score_operation').$type<TypSubmissionRuleScoreOp>().notNull(),
 
-  evalOperation: text('eval_operation').notNull(),
+  evalOperation: text('eval_operation').$type<TypSubmissionRuleEvalOp>().notNull(),
   evalValue: text('eval_value').notNull(),
 
-  actionType: text('action_type').notNull(),
+  actionType: text('action_type').$type<TypSubmissionRuleActionType>().notNull(),
   actionValue: text('action_value').notNull(),
 
   ...timestampFieldsSchemas,
@@ -59,58 +96,4 @@ export const submissionRulesTable = sqliteTable('submission_rules', {
   };
 });
 
-export const SUBMISSION_RULE_FILTER_TYPES = {
-  QUESTION_DOMAIN: 'question_domain',
-} as const;
-
-export type TypSubmissionRuleFilterType = typeof SUBMISSION_RULE_FILTER_TYPES[
-  keyof typeof SUBMISSION_RULE_FILTER_TYPES
-];
-
-export const SUBMISSION_RULE_SCORE_OPS = {
-  SUM: 'sum',
-} as const;
-
-export type TypSubmissionRuleScoreOp = typeof SUBMISSION_RULE_SCORE_OPS[
-  keyof typeof SUBMISSION_RULE_SCORE_OPS
-];
-
-export const SUBMISSION_RULE_EVAL_OPS = {
-  EQUAL: 'eq',
-  GREATER_THAN: 'gt',
-  GREATER_THAN_OR_EQUAL: 'geq',
-  LESS_THAN: 'lt',
-  LESS_THAN_OR_EQUAL: 'leq',
-} as const;
-
-export type TypSubmissionRuleEvalOp = typeof SUBMISSION_RULE_EVAL_OPS[
-  keyof typeof SUBMISSION_RULE_EVAL_OPS
-];
-
-export const SUBMISSION_RULE_ACTION_TYPES = {
-  ASSIGN_ASSESSMENT: 'assign_assessment',
-} as const;
-
-export type TypSubmissionRuleActionType = typeof SUBMISSION_RULE_ACTION_TYPES[
-  keyof typeof SUBMISSION_RULE_ACTION_TYPES
-];
-
-export type TypSubmissionRule = {
-  id: string;
-
-  assessmentId: string;
-
-  filterType: TypSubmissionRuleFilterType;
-  filterValue: string;
-
-  scoreOperation: TypSubmissionRuleScoreOp;
-
-  evalOperation: TypSubmissionRuleEvalOp;
-  evalValue: string;
-
-  actionType: TypSubmissionRuleActionType;
-  actionValue: string;
-
-  createdAt: string;
-  updatedAt: string;
-};
+export type TypSubmissionRule = InferModel<typeof submissionRulesTable, 'select'>;

@@ -52,16 +52,13 @@ describe('GET /assessments/:assessmentName', () => {
         const content = res.body.data.assessment.content;
         expect(content).toBeDefined();
         expect(content.display_name).toEqual(assessment.displayName);
-        expect(content.sections.length).toBeDefined();
-        expect(content.sections.length).toEqual(1);
+        expect(content.sections).toHaveLength(1);
 
         const section = content.sections[0];
         expect(section.title).toEqual(assessmentSection.title);
         expect(section.type).toEqual(assessmentSection.type);
-        expect(section.answers).toBeDefined();
-        expect(section.answers.length).toEqual(1);
-        expect(section.questions).toBeDefined();
-        expect(section.questions.length).toEqual(1);
+        expect(section.answers).toHaveLength(1);
+        expect(section.questions).toHaveLength(1);
 
         const sectionQuestion = section.questions[0];
         expect(sectionQuestion.display_order).toEqual(assessmentQuestion.displayOrder);

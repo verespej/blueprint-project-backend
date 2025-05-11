@@ -1,8 +1,17 @@
+import { InferModel } from 'drizzle-orm';
 import { index, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 import { assessmentsTable } from './assessments';
 import { idFieldSchema } from './common/id-fields';
 import { timestampFieldsSchemas } from './common/timestamp-fields';
+
+export const ASSESSMENT_SECTION_TYPES = {
+  STANDARD: 'standard',
+} as const;
+
+export type TypAssessmentSectionType = typeof ASSESSMENT_SECTION_TYPES[
+  keyof typeof ASSESSMENT_SECTION_TYPES
+];
 
 /* Assessment sections table
  *
@@ -27,7 +36,7 @@ export const assessmentSectionsTable = sqliteTable('assessment_sections', {
   id: idFieldSchema().notNull().primaryKey(),
 
   assessmentId: text('assessment_id').notNull().references(() => assessmentsTable.id),
-  type: text().notNull(),
+  type: text().$type<TypAssessmentSectionType>().notNull(),
   title: text().notNull(),
 
   ...timestampFieldsSchemas,
@@ -37,21 +46,7 @@ export const assessmentSectionsTable = sqliteTable('assessment_sections', {
   };
 });
 
-export const ASSESSMENT_SECTION_TYPES = {
-  STANDARD: 'standard',
-} as const;
-
-export type TypAssessmentSectionType = typeof ASSESSMENT_SECTION_TYPES[
-  keyof typeof ASSESSMENT_SECTION_TYPES
-];
-
-export type TypAssessmentSection = {
-  id: string;
-
-  assessmentId: string;
-  type: TypAssessmentSectionType;
-  title: string;
-
-  createdAt: string;
-  updatedAt: string;
-};
+export type TypAssessmentSection = InferModel<
+  typeof assessmentSectionsTable,
+  'select'
+>;

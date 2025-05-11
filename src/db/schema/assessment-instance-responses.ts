@@ -1,3 +1,4 @@
+import { InferModel } from 'drizzle-orm';
 import { index, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core';
 
 import { assessmentInstancesTable } from './assessment-instances';
@@ -28,7 +29,7 @@ export const assessmentInstanceResponsesTable = sqliteTable('assessment_instance
 
   assessmentInstanceId: text('assessment_instance_id').notNull().references(() => assessmentInstancesTable.id),
   questionId: text('question_id').notNull().references(() => assessmentSectionQuestionsTable.id),
-  answerId: text('answer_id').references(() => assessmentSectionAnswersTable.id),
+  answerId: text('answer_id').notNull().references(() => assessmentSectionAnswersTable.id),
 
   ...timestampFieldsSchemas,
 }, (table) => {
@@ -41,13 +42,7 @@ export const assessmentInstanceResponsesTable = sqliteTable('assessment_instance
   };
 });
 
-export type TypAssessmentResponse = {
-  id: string;
-
-  assessmentInstanceId: string;
-  questionId: string;
-  answerId: string;
-
-  createdAt: string;
-  updatedAt: string;
-};
+export type TypAssessmentResponse = InferModel<
+  typeof assessmentInstanceResponsesTable,
+  'select'
+>;

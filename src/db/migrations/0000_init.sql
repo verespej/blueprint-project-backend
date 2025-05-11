@@ -2,7 +2,7 @@ CREATE TABLE `assessment_instance_responses` (
 	`id` text(36) PRIMARY KEY NOT NULL,
 	`assessment_instance_id` text NOT NULL,
 	`question_id` text NOT NULL,
-	`answer_id` text,
+	`answer_id` text NOT NULL,
 	`created_at` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
 	`updated_at` text NOT NULL,
 	FOREIGN KEY (`assessment_instance_id`) REFERENCES `assessment_instances`(`id`) ON UPDATE no action ON DELETE no action,

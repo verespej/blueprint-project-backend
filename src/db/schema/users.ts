@@ -1,7 +1,17 @@
+import { InferModel } from 'drizzle-orm';
 import { sqliteTable, text, unique } from 'drizzle-orm/sqlite-core';
 
 import { idFieldSchema } from './common/id-fields';
 import { timestampFieldsSchemas } from './common/timestamp-fields';
+
+export const USER_TYPES = {
+  PATIENT: 'patient',
+  PROVIDER: 'provider',
+} as const;
+
+export type TypUserType = typeof USER_TYPES[
+  keyof typeof USER_TYPES
+];
 
 /* Users table
  *
@@ -27,7 +37,7 @@ import { timestampFieldsSchemas } from './common/timestamp-fields';
 export const usersTable = sqliteTable('users', {
   id: idFieldSchema().notNull().primaryKey(),
 
-  type: text().notNull(),
+  type: text().$type<TypUserType>().notNull(),
 
   givenName: text('given_name').notNull(),
   familyName: text('family_name').notNull(),
@@ -45,25 +55,4 @@ export const usersTable = sqliteTable('users', {
   };
 });
 
-export const USER_TYPES = {
-  PATIENT: 'patient',
-  PROVIDER: 'provider',
-} as const;
-
-export type TypUserType = typeof USER_TYPES[
-  keyof typeof USER_TYPES
-];
-
-export type TypUser = {
-  id: string;
-
-  type: TypUserType;
-  givenName: string;
-  familyName: string;
-
-  email: string;
-  password: string;
-
-  createdAt: string;
-  updatedAt: string;
-};
+export type TypUser = InferModel<typeof usersTable, 'select'>;
