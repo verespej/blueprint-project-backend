@@ -1,4 +1,4 @@
-export function generateSlug(length = 8) {
+export function generateSlug(length: number = 8): string {
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
   let slug = '';

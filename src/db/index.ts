@@ -1,5 +1,6 @@
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 
+export * from './constants';
 export * from './schema/assessment-instance-responses';
 export * from './schema/assessment-instances';
 export * from './schema/assessment-section-answers';

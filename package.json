@@ -4,13 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "db:destroy:local": "rm .local_data/db.sqlite3",
-    "db:migrate:local": "drizzle-kit migrate",
-    "db:generate": "find ./src/db -name '.DS_Store' -delete && drizzle-kit generate",
-    "db:seed:local": "DB_URL=.local_data/db.sqlite3 tsx scripts/seed-db.ts",
-    "pre-dev": "mkdir -p .local_data",
-    "dev": "DB_URL=.local_data/db.sqlite3 tsx watch --clear-screen=false src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "db:destroy:local": "rm -f .local_data/db.sqlite3",
+    "db:migrate:local": "mkdir -p .local_data && NODE_ENV=local drizzle-kit migrate",
+    "db:generate": "find ./src/db -name '.DS_Store' -delete && NODE_ENV=local drizzle-kit generate",
+    "db:seed:local": "mkdir -p .local_data && NODE_ENV=local tsx scripts/seed-db.ts",
+    "dev": "mkdir -p .local_data && NODE_ENV=local tsx watch --clear-screen=false src/index.ts",
+    "test": "NODE_ENV=test vitest run",
+    "test:watch": "NODE_ENV=test vitest --watch",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [],
@@ -19,6 +19,7 @@
   "type": "commonjs",
   "dependencies": {
     "better-sqlite3": "^11.10.0",
+    "dotenv": "^16.5.0",
     "drizzle-orm": "^0.43.1",
     "express": "^5.1.0",
     "express-zod-safe": "^1.5.0",
@@ -31,8 +32,11 @@
     "@types/better-sqlite3": "^7.6.13",
     "@types/express": "^5.0.1",
     "@types/node": "^22.15.17",
+    "@types/supertest": "^6.0.3",
     "drizzle-kit": "^0.31.1",
+    "supertest": "^7.1.0",
     "tsx": "^4.19.4",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.3"
   }
 }

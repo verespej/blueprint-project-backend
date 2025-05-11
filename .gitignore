@@ -12,7 +12,7 @@ Icon?
 node_modules/
 dist/
 build/
-.env
+# .env # Allow this file to use as a base and template
 .env.*
 *.log
 npm-debug.log*

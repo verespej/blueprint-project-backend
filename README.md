@@ -1,5 +1,10 @@
 # Blueprint project backend
 
+## Configuration
+
+TODO
+
+
 ## DB
 
 ```

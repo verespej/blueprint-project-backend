@@ -1,25 +1,24 @@
 // These configs are for drizzle-kit. It doesn't affect the drizzle module's
-// behavior in the app. Thus, it's mostly just used for generating and running
-// migrations.
-
-import fs from 'fs';
-import path from 'path';
+// behavior in the running app. It's mostly just used for generating and
+// running migrations.
 
 import { defineConfig } from 'drizzle-kit';
 
-const dbPath = path.resolve('.local_data/db.sqlite3');
-const dbDirPath = path.dirname(dbPath);
-if (!fs.existsSync(dbDirPath)) {
-  fs.mkdirSync(dbDirPath, { recursive: true });
+import '#config/env';
+
+import { MIGRATIONS_TABLE_NAME } from '#src/db/constants';
+
+if (!process.env.DB_URL || process.env.DB_URL.length < 1) {
+  throw new Error('DB_URL env var is required');
 }
 
 export default defineConfig({
   dialect: "sqlite",
-  dbCredentials: { // local
-    url: dbPath,
+  dbCredentials: {
+    url: process.env.DB_URL,
   },
   migrations: {
-    table: 'migrations',
+    table: MIGRATIONS_TABLE_NAME,
   },
   out: './src/db/migrations',
   schema: './src/db/schema',
