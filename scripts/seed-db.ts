@@ -10,6 +10,11 @@ import {
   db,
   disordersTable,
   patientProvidersTable,
+  submissionRulesTable,
+  SUBMISSION_RULE_ACTION_TYPES,
+  SUBMISSION_RULE_EVAL_OPS,
+  SUBMISSION_RULE_FILTER_TYPES,
+  SUBMISSION_RULE_SCORE_OPS,
   USER_TYPES,
   usersTable,
 } from '#src/db';
@@ -222,15 +227,102 @@ async function seedUsers() {
       onboardedAt: new Date().toISOString(),
       patientId: patient.id,
       providerId: provider.id,
-    })
-    .returning()
-    .get();
+    });
+}
+
+async function seedSubmissionRules() {
+  const anxietyDisorder = (await db.select().from(disordersTable)
+    .where(eq(disordersTable.name, 'anxiety'))
+    .get())!;
+  const depressionDisorder = (await db.select().from(disordersTable)
+    .where(eq(disordersTable.name, 'depression'))
+    .get())!;
+  const maniaDisorder = (await db.select().from(disordersTable)
+    .where(eq(disordersTable.name, 'mania'))
+    .get())!;
+  const substanceUseDisorder = (await db.select().from(disordersTable)
+    .where(eq(disordersTable.name, 'substance_use'))
+    .get())!;
+
+  const blueprintScreenerAssessment = (await db.select().from(assessmentsTable)
+    .where(eq(assessmentsTable.name, 'BPDS'))
+    .get())!;
+  const depressionAnxietyAssessment = (await db.select().from(assessmentsTable)
+    .where(eq(assessmentsTable.name, 'PHQ-9'))
+    .get())!;
+  const maniaAssessment = (await db.select().from(assessmentsTable)
+    .where(eq(assessmentsTable.name, 'ASRM'))
+    .get())!;
+  const substanceUseAssessment = (await db.select().from(assessmentsTable)
+    .where(eq(assessmentsTable.name, 'ASSIST'))
+    .get())!;
+
+  await db.insert(submissionRulesTable)
+    .values([
+      {
+        assessmentId: blueprintScreenerAssessment.id,
+
+        filterType: SUBMISSION_RULE_FILTER_TYPES.QUESTION_DOMAIN,
+        filterValue: depressionDisorder.id,
+
+        scoreOperation: SUBMISSION_RULE_SCORE_OPS.SUM,
+
+        evalOperation: SUBMISSION_RULE_EVAL_OPS.GREATER_THAN_OR_EQUAL,
+        evalValue: '2',
+
+        actionType: SUBMISSION_RULE_ACTION_TYPES.ASSIGN_ASSESSMENT,
+        actionValue: depressionAnxietyAssessment.id,
+      },
+      {
+        assessmentId: blueprintScreenerAssessment.id,
+
+        filterType: SUBMISSION_RULE_FILTER_TYPES.QUESTION_DOMAIN,
+        filterValue: maniaDisorder.id,
+
+        scoreOperation: SUBMISSION_RULE_SCORE_OPS.SUM,
+
+        evalOperation: SUBMISSION_RULE_EVAL_OPS.GREATER_THAN_OR_EQUAL,
+        evalValue: '2',
+
+        actionType: SUBMISSION_RULE_ACTION_TYPES.ASSIGN_ASSESSMENT,
+        actionValue: maniaAssessment.id,
+      },
+      {
+        assessmentId: blueprintScreenerAssessment.id,
+
+        filterType: SUBMISSION_RULE_FILTER_TYPES.QUESTION_DOMAIN,
+        filterValue: anxietyDisorder.id,
+
+        scoreOperation: SUBMISSION_RULE_SCORE_OPS.SUM,
+
+        evalOperation: SUBMISSION_RULE_EVAL_OPS.GREATER_THAN_OR_EQUAL,
+        evalValue: '2',
+
+        actionType: SUBMISSION_RULE_ACTION_TYPES.ASSIGN_ASSESSMENT,
+        actionValue: depressionAnxietyAssessment.id,
+      },
+      {
+        assessmentId: blueprintScreenerAssessment.id,
+
+        filterType: SUBMISSION_RULE_FILTER_TYPES.QUESTION_DOMAIN,
+        filterValue: substanceUseDisorder.id,
+
+        scoreOperation: SUBMISSION_RULE_SCORE_OPS.SUM,
+
+        evalOperation: SUBMISSION_RULE_EVAL_OPS.GREATER_THAN_OR_EQUAL,
+        evalValue: '1',
+
+        actionType: SUBMISSION_RULE_ACTION_TYPES.ASSIGN_ASSESSMENT,
+        actionValue: substanceUseAssessment.id,
+      },
+    ]);
 }
 
 async function seedDb() {
   await seedDisorders();
   await seedAssessments();
   await seedUsers();
+  await seedSubmissionRules();
 }
 
 seedDb().then(() => {

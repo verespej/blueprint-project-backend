@@ -1,9 +1,118 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "46f7b050-fcbc-450e-88d1-b7cd4a65ba12",
+  "id": "7beab4e4-3279-487e-aeb7-30d6650cb599",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
+    "assessment_instance_responses": {
+      "name": "assessment_instance_responses",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text(36)",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "assessment_instance_id": {
+          "name": "assessment_instance_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "question_id": {
+          "name": "question_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "answer_id": {
+          "name": "answer_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "assessment_instance_responses_question_idx": {
+          "name": "assessment_instance_responses_question_idx",
+          "columns": [
+            "question_id"
+          ],
+          "isUnique": false
+        },
+        "assessment_instance_responses_assessment_instance_question_uniq_idx": {
+          "name": "assessment_instance_responses_assessment_instance_question_uniq_idx",
+          "columns": [
+            "assessment_instance_id",
+            "question_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "assessment_instance_responses_assessment_instance_id_assessment_instances_id_fk": {
+          "name": "assessment_instance_responses_assessment_instance_id_assessment_instances_id_fk",
+          "tableFrom": "assessment_instance_responses",
+          "tableTo": "assessment_instances",
+          "columnsFrom": [
+            "assessment_instance_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "assessment_instance_responses_question_id_assessment_section_questions_id_fk": {
+          "name": "assessment_instance_responses_question_id_assessment_section_questions_id_fk",
+          "tableFrom": "assessment_instance_responses",
+          "tableTo": "assessment_section_questions",
+          "columnsFrom": [
+            "question_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "assessment_instance_responses_answer_id_assessment_section_answers_id_fk": {
+          "name": "assessment_instance_responses_answer_id_assessment_section_answers_id_fk",
+          "tableFrom": "assessment_instance_responses",
+          "tableTo": "assessment_section_answers",
+          "columnsFrom": [
+            "answer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "assessment_instances": {
       "name": "assessment_instances",
       "columns": {
@@ -128,115 +237,6 @@
           "tableTo": "assessments",
           "columnsFrom": [
             "assessment_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "assessment_responses": {
-      "name": "assessment_responses",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text(36)",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "assessment_instance_id": {
-          "name": "assessment_instance_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "question_id": {
-          "name": "question_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "answer_id": {
-          "name": "answer_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "assessment_responses_question_idx": {
-          "name": "assessment_responses_question_idx",
-          "columns": [
-            "question_id"
-          ],
-          "isUnique": false
-        },
-        "assessment_responses_assessment_instance_question_uniq_idx": {
-          "name": "assessment_responses_assessment_instance_question_uniq_idx",
-          "columns": [
-            "assessment_instance_id",
-            "question_id"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {
-        "assessment_responses_assessment_instance_id_assessment_instances_id_fk": {
-          "name": "assessment_responses_assessment_instance_id_assessment_instances_id_fk",
-          "tableFrom": "assessment_responses",
-          "tableTo": "assessment_instances",
-          "columnsFrom": [
-            "assessment_instance_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "assessment_responses_question_id_assessment_section_questions_id_fk": {
-          "name": "assessment_responses_question_id_assessment_section_questions_id_fk",
-          "tableFrom": "assessment_responses",
-          "tableTo": "assessment_section_questions",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "assessment_responses_answer_id_assessment_section_answers_id_fk": {
-          "name": "assessment_responses_answer_id_assessment_section_answers_id_fk",
-          "tableFrom": "assessment_responses",
-          "tableTo": "assessment_section_answers",
-          "columnsFrom": [
-            "answer_id"
           ],
           "columnsTo": [
             "id"
@@ -757,6 +757,116 @@
           "tableTo": "users",
           "columnsFrom": [
             "provider_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "submission_rules": {
+      "name": "submission_rules",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text(36)",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "assessment_id": {
+          "name": "assessment_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "filter_type": {
+          "name": "filter_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "filter_value": {
+          "name": "filter_value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "score_operation": {
+          "name": "score_operation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "eval_operation": {
+          "name": "eval_operation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "eval_value": {
+          "name": "eval_value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "action_type": {
+          "name": "action_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "action_value": {
+          "name": "action_value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "assessment_idx": {
+          "name": "assessment_idx",
+          "columns": [
+            "assessment_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "submission_rules_assessment_id_assessments_id_fk": {
+          "name": "submission_rules_assessment_id_assessments_id_fk",
+          "tableFrom": "submission_rules",
+          "tableTo": "assessments",
+          "columnsFrom": [
+            "assessment_id"
           ],
           "columnsTo": [
             "id"

@@ -8,6 +8,7 @@ export * from './schema/assessment-sections';
 export * from './schema/assessments';
 export * from './schema/disorders';
 export * from './schema/patient-providers';
+export * from './schema/submission-rules';
 export * from './schema/users';
 
 export const db = drizzle(process.env.DB_URL || 'db.sqlite3');

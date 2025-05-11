@@ -1,14 +1,13 @@
+import { and, eq, inArray, isNull } from 'drizzle-orm';
 import express from 'express';
 import validate from 'express-zod-safe';
 import { StatusCodes } from 'http-status-codes';
 import { groupBy } from 'lodash';
 import { z } from 'zod';
 
-import { and, eq, inArray, isNull } from 'drizzle-orm';
-
 import {
   ASSESSMENT_SECTION_ANSWER_VALUE_TYPES,
-  // assessmentInstanceResponsesTable,
+  assessmentInstanceResponsesTable,
   assessmentInstancesTable,
   assessmentSectionAnswersTable,
   assessmentSectionQuestionsTable,
@@ -333,17 +332,14 @@ app.get(
 );
 
 //
-// Create responses for an assessment instance.
+// Record a response to a question for an assessment instance.
 //
 // Note: We'd want the patient's user ID to come from an auth session. But,
 // building full sessions was scoped out for this demo.
-// Note: I'd prefer to hand an endpoint that receives each response as the
-// user makes progress, then a "submit" endpoint. However, I'm sticking
-// with the speck for this demo.
 /*
 curl -X POST http://localhost:3000/patient/PATIENT123/assessments/ASSESSMENT123/responses \
   -H "Content-Type: application/json" \
-  -d '{"answers": [{ "question_id": "question_a", "value": 1 }, { "question_id": "question_b", "value": 2 }]}'
+  -d '{"questionId": "QUESTION1", "answerId": "ANSWER1"}'
 */
 app.post(
   '/patient/:patientId/assessments/:assessmentInstanceId/responses',
@@ -353,16 +349,118 @@ app.post(
       patientId: z.string(),
     },
     body: {
-      answers: z.array(
-        z.object({
-          question_id: z.string(),
-          value: z.number(),
-        }),
-      ),
+      questionId: z.string(),
+      answerId: z.string(),
     },
   }),
-  (_req, res) => {
-    // TODO: Write to assessmentInstanceResponsesTable
+  async (req, res) => {
+    const patient = await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(eq(usersTable.id, req.params.patientId))
+      .get();
+    if (!patient) {
+      res.status(StatusCodes.NOT_FOUND).json({ errorMessage: 'No such patient' });
+      return;
+    }
+
+    const assessmentInstance = await db.select()
+      .from(assessmentInstancesTable)
+      .where(eq(assessmentInstancesTable.id, req.params.assessmentInstanceId))
+      .get();
+    if (!assessmentInstance) {
+      res.status(StatusCodes.NOT_FOUND).json({ errorMessage: 'No such assessment instance' });
+      return;
+    }
+
+    if (assessmentInstance.patientId !== patient.id) {
+      res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ errorMessage: 'Assessment not assigned to patient' });
+      return;
+    }
+
+    const question = await db
+      .select({
+        id: assessmentSectionQuestionsTable.id,
+        assessmentId: assessmentSectionsTable.assessmentId,
+      })
+      .from(assessmentSectionQuestionsTable)
+      .innerJoin(
+        assessmentSectionsTable,
+        eq(assessmentSectionQuestionsTable.assessmentSectionId, assessmentSectionsTable.id)
+      )
+      .where(eq(assessmentSectionQuestionsTable.id, req.body.questionId))
+      .get();
+    if (!question) {
+      res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ errorMessage: 'No such assessment question' });
+      return;
+    }
+
+    const answer = await db
+      .select({
+        id: assessmentSectionAnswersTable.id,
+        assessmentId: assessmentSectionsTable.assessmentId,
+      })
+      .from(assessmentSectionAnswersTable)
+      .innerJoin(
+        assessmentSectionsTable,
+        eq(assessmentSectionAnswersTable.assessmentSectionId, assessmentSectionsTable.id)
+      )
+      .where(eq(assessmentSectionAnswersTable.id, req.body.answerId))
+      .get();
+    if (!answer) {
+      res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ errorMessage: 'No such assessment answer' });
+      return;
+    }
+
+    if (question.assessmentId !== assessmentInstance.assessmentId) {
+      res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ errorMessage: "Question isn't part of target assessment" });
+      return;
+    }
+    if (answer.assessmentId !== assessmentInstance.assessmentId) {
+      res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ errorMessage: "Answer isn't vaoid for target assessment" });
+      return;
+    }
+
+    const assessmentResponse = await db.insert(assessmentInstanceResponsesTable)
+      .values({
+        assessmentInstanceId: assessmentInstance.id,
+        questionId: question.id,
+        answerId: answer.id,
+      })
+      .returning()
+      .get();
+
+    res.status(StatusCodes.CREATED).json({
+      data: {
+        assessmentResponse,
+      },
+    });
+  },
+);
+
+//
+// Submit an assessment instance.
+//
+// Note: We'd want the patient's user ID to come from an auth session. But,
+// building full sessions was scoped out for this demo.
+/*
+curl -X POST http://localhost:3000/patient/PATIENT123/assessments/ASSESSMENT123/submissions \
+  -H "Content-Type: application/json"
+*/
+app.post(
+  '/patient/:patientId/assessments/:assessmentInstanceId/submissions',
+  validate({
+    params: {
+      assessmentInstanceId: z.string(),
+      patientId: z.string(),
+    },
+  }),
+  async (_req, res) => {
+    // TODO:
+    // 1. Verify that assessment instance hasn't already been submitted
+    // 2. Verify all questions are answered
+    // 3. Run rules engine (idempotency?)
+    // 4. Record submission as complete
     res.status(StatusCodes.CREATED).json({
       results: ["ASRM", "PHQ-9"]
     });
