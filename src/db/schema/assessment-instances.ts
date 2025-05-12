@@ -19,6 +19,7 @@ import { usersTable } from './users';
  *  assessmentId: The assessment the provider is sending the patient to complete. Text reference to an assessment ID.
  *  slug: An identifier that can be used to form a URL to send to the patient as well as look up this assessment instance. Text.
  *  sentAt: When the provider sent this assessment instance to the patient. Text formatted as an ISO8601 string.
+ *  submittedAt: When the patient submitted their responses to this assessment instance. Text formatted as an ISO8601 string.
  *
  *  createdAt: When this record was created. Text formatted as an ISO8601 string.
  *  updatedAt: When this record was last udpated. Text formatted as an ISO8601 string.
@@ -33,6 +34,7 @@ export const assessmentInstancesTable = sqliteTable('assessment_instances', {
   assessmentId: text('assessment_id').notNull().references(() => assessmentsTable.id),
   slug: text().notNull(),
   sentAt: text('sent_at'),
+  submittedAt: text('submitted_at'),
 
   ...timestampFieldsSchemas,
 }, (table) => {

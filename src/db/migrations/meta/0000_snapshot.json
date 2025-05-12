@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "2f56d9ad-c2f2-438b-bf59-73b066c5a07f",
+  "id": "e14a2e8f-0449-460e-a293-3f62c0cddeb0",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "assessment_instance_responses": {
@@ -153,6 +153,13 @@
         },
         "sent_at": {
           "name": "sent_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "submitted_at": {
+          "name": "submitted_at",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

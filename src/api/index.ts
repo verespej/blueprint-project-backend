@@ -3,7 +3,7 @@
 import { and, eq, inArray, isNull } from 'drizzle-orm';
 import validate from 'express-zod-safe';
 import { StatusCodes } from 'http-status-codes';
-import { groupBy } from 'lodash';
+import { difference, groupBy } from 'lodash';
 import { z } from 'zod';
 
 import {
@@ -20,6 +20,7 @@ import {
   USER_TYPES,
   usersTable,
 } from '#src/db';
+import { runRules } from '#src/modules/rule-engine';
 import { generateSlug } from '#src/utils/slugs';
 
 export function registerEndpoints(app) {
@@ -339,7 +340,8 @@ export function registerEndpoints(app) {
   /*
   curl -X POST http://localhost:3000/patient/PATIENT123/assessments/ASSESSMENT123/responses \
     -H "Content-Type: application/json" \
-    -d '{"questionId": "QUESTION1", "answerId": "ANSWER1"}'
+    -d '{"questionId": "QUESTION1", "answerId": "ANSWER1"}' \
+    | jq
   */
   app.post(
     '/patient/:patientId/assessments/:assessmentInstanceId/responses',
@@ -421,6 +423,9 @@ export function registerEndpoints(app) {
         return;
       }
 
+      // TODO: Check if the assessment has already been submitted. If so, err.
+      // TODO: Try looking up the response first. If found, update it.
+
       const assessmentResponse = await db.insert(assessmentInstanceResponsesTable)
         .values({
           assessmentInstanceId: assessmentInstance.id,
@@ -445,7 +450,8 @@ export function registerEndpoints(app) {
   // building full sessions was scoped out for this demo.
   /*
   curl -X POST http://localhost:3000/patient/PATIENT123/assessments/ASSESSMENT123/submissions \
-    -H "Content-Type: application/json"
+    -H "Content-Type: application/json" \
+    | jq
   */
   app.post(
     '/patient/:patientId/assessments/:assessmentInstanceId/submissions',
@@ -455,14 +461,79 @@ export function registerEndpoints(app) {
         patientId: z.string(),
       },
     }),
-    async (_req, res) => {
-      // TODO:
-      // 1. Verify that assessment instance hasn't already been submitted
-      // 2. Verify all questions are answered
-      // 3. Run rules engine (idempotency?)
-      // 4. Record submission as complete
+    async (req, res) => {
+      const patient = await db
+        .select({ id: usersTable.id })
+        .from(usersTable)
+        .where(eq(usersTable.id, req.params.patientId))
+        .get();
+      if (!patient) {
+        res.status(StatusCodes.NOT_FOUND).json({ errorMessage: 'No such patient' });
+        return;
+      }
+
+      const assessmentInstance = await db.select()
+        .from(assessmentInstancesTable)
+        .where(eq(assessmentInstancesTable.id, req.params.assessmentInstanceId))
+        .get();
+      if (!assessmentInstance) {
+        res.status(StatusCodes.NOT_FOUND).json({ errorMessage: 'No such assessment instance' });
+        return;
+      }
+
+      if (assessmentInstance.patientId !== patient.id) {
+        res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ errorMessage: 'Assessment not assigned to patient' });
+        return;
+      }
+      if (assessmentInstance.submittedAt) {
+        res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ errorMessage: 'Assessment responses have already been submitted' });
+        return;
+      }
+
+      const assessmentResponses = await db.select()
+        .from(assessmentInstanceResponsesTable)
+        .where(eq(assessmentInstanceResponsesTable.assessmentInstanceId, assessmentInstance.id))
+        .all();
+      const submittedQuestionIds = assessmentResponses.map(r => r.questionId);
+
+      const questions = await db
+        .select({ id: assessmentSectionQuestionsTable.id })
+        .from(assessmentSectionQuestionsTable)
+        .innerJoin(assessmentSectionsTable, eq(
+          assessmentSectionQuestionsTable.assessmentSectionId,
+          assessmentSectionsTable.id,
+        ))
+        .where(eq(
+          assessmentSectionsTable.assessmentId,
+          assessmentInstance.assessmentId,
+        ))
+        .all();
+      const requiredQuestionIds = questions.map(q => q.id);
+
+      const missingQuestions = difference(requiredQuestionIds, submittedQuestionIds);
+      if (missingQuestions.length > 0) {
+        res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+          errorMessage: `${missingQuestions.length} assessment questions haven't been answered yet`,
+        });
+        return;
+      }
+
+      // TODO: It's possible that we could configure rules other than
+      // assign-assessment. This could result in the return value including
+      // stuff other than follow-up assessment names. We should choose an
+      // alternative way of getting assigned follow-up assessments.
+      // TODO: Running the rules engine needs to be made idempotent.
+      const assignedFollowUpAssessmentNames = await runRules(assessmentInstance);
+
+      await db.update(assessmentInstancesTable)
+        .set({ submittedAt: new Date().toISOString() })
+        .where(eq(assessmentInstancesTable.id, assessmentInstance.id))
+        .run();
+
       res.status(StatusCodes.CREATED).json({
-        results: ["ASRM", "PHQ-9"]
+        data: {
+          followUpAssessmentsAssigned: assignedFollowUpAssessmentNames,
+        },
       });
     },
   );

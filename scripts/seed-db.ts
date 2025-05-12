@@ -1,5 +1,8 @@
 import { eq } from 'drizzle-orm';
 
+// Env var import MUST come BEFORE other local imports.
+import '#config/env';
+
 import {
   ASSESSMENT_SECTION_ANSWER_VALUE_TYPES,
   ASSESSMENT_SECTION_TYPES,

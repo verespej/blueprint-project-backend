@@ -19,6 +19,7 @@ CREATE TABLE `assessment_instances` (
 	`assessment_id` text NOT NULL,
 	`slug` text NOT NULL,
 	`sent_at` text,
+	`submitted_at` text,
 	`created_at` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
 	`updated_at` text NOT NULL,
 	FOREIGN KEY (`provider_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,

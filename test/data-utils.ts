@@ -168,6 +168,7 @@ export async function createAssessmentInstance({
   assessmentId,
   slug = uuid(),
   sentAt = new Date().toISOString(),
+  submittedAt = null,
 }): Promise<TypAssessmentInstance> {
   return await db.insert(assessmentInstancesTable)
     .values({
@@ -176,6 +177,7 @@ export async function createAssessmentInstance({
       assessmentId,
       slug,
       sentAt,
+      submittedAt,
     })
     .returning()
     .get();
