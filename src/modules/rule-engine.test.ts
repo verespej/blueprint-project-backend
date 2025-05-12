@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { v4 as uuid } from 'uuid';
-import { describe, it, expect, beforeAll } from 'vitest';
+import { beforeAll, describe, expect, it} from 'vitest';
 
 import {
   ASSESSMENT_SECTION_ANSWER_VALUE_TYPES,
@@ -24,28 +24,27 @@ import {
 import {
   clearDb,
   createAssessment,
-  // createAssessmentAnswer,
-  // createAssessmentResponse,
+  createAssessmentAnswer,
+  createAssessmentResponse,
   createAssessmentInstance,
   createAssessmentQuestion,
   createAssessmentSection,
   createDisorder,
+  createSubmissionRule,
   createUser,
   randNumber,
 } from '#test/data-utils';
 
-import { _testExports } from './rule-engine';
+import { _testExports, runRules } from './rule-engine';
 
 describe('rule-engine', () => {
   let disorder: TypDisorder;
   let assessment: TypAssessment;
   let assessmentSection: TypAssessmentSection;
   let assessmentQuestion: TypAssessmentSectionQuestion;
-  // let assessmentAnswer: TypAssessmentSectionAnswer;
   let provider: TypUser;
   let patient: TypUser;
   let assessmentInstance: TypAssessmentInstance;
-  // let assessmentResponse: TypAssessmentResponse;
 
   beforeAll(async () => {
     await clearDb();
@@ -63,9 +62,6 @@ describe('rule-engine', () => {
       assessmentSectionId: assessmentSection.id,
       disorderId: disorder.id,
     });
-    // assessmentAnswer = await createAssessmentAnswer({
-    //   assessmentSectionId: assessmentSection.id,
-    // });
 
     // Create provider and patient
     provider = await createUser({ type: USER_TYPES.PROVIDER });
@@ -77,11 +73,6 @@ describe('rule-engine', () => {
       patientId: patient.id,
       assessmentId: assessment.id,
     });
-    // assessmentResponse = await createAssessmentResponse({
-    //   assessmentInstanceId: assessmentInstance.id,
-    //   questionId: assessmentQuestion.id,
-    //   answerId: assessmentAnswer.id,
-    // });
   });
 
   describe('applyFilter', () => {
@@ -273,6 +264,93 @@ describe('rule-engine', () => {
         expect(newdAssessmentInstance!.assessmentId).not.toEqual(assessmentInstance.assessmentId);
         expect(newdAssessmentInstance!.assessmentId).toEqual(otherAssessment.id);
       });
+    });
+  });
+
+  describe('runRules', () => {
+    it("does nothing when there aren't applicable rules", async () => {
+      const fakeAssessmentInstance = { id: uuid(), assessmentId: uuid() } as TypAssessmentInstance;
+      const result = await runRules(fakeAssessmentInstance);
+      expect(result).toEqual([]);
+    });
+
+    it('succeeds', async () => {
+      const otherDisorder = await createDisorder();
+      const otherAssessment = await createAssessment({
+        disorderId: otherDisorder.id,
+        locked: true,
+      });
+
+      // Rule: If scores >= 2 for main disorder, assign same assessment again
+      await createSubmissionRule({
+        actionType: SUBMISSION_RULE_ACTION_TYPES.ASSIGN_ASSESSMENT,
+        actionValue: assessmentInstance.assessmentId,
+        assessmentId: assessmentInstance.assessmentId,
+        evalOperation: SUBMISSION_RULE_EVAL_OPS.GREATER_THAN_OR_EQUAL,
+        evalValue: '2',
+        filterType: SUBMISSION_RULE_FILTER_TYPES.QUESTION_DOMAIN,
+        filterValue: disorder.id,
+        scoreOperation: SUBMISSION_RULE_SCORE_OPS.SUM,
+      });
+      // Rule: If scores >= 2 for other disorder, assign other assessment
+      await createSubmissionRule({
+        actionType: SUBMISSION_RULE_ACTION_TYPES.ASSIGN_ASSESSMENT,
+        actionValue: otherAssessment.id,
+        assessmentId: assessmentInstance.assessmentId,
+        evalOperation: SUBMISSION_RULE_EVAL_OPS.GREATER_THAN_OR_EQUAL,
+        evalValue: '2',
+        filterType: SUBMISSION_RULE_FILTER_TYPES.QUESTION_DOMAIN,
+        filterValue: otherDisorder.id,
+        scoreOperation: SUBMISSION_RULE_SCORE_OPS.SUM,
+      });
+
+      const assessmentQuestion2 = await createAssessmentQuestion({
+        assessmentSectionId: assessmentSection.id,
+        disorderId: otherDisorder.id,
+      });
+      const assessmentQuestion3 = await createAssessmentQuestion({
+        assessmentSectionId: assessmentSection.id,
+        disorderId: otherDisorder.id,
+      });
+      const assessmentAnswer = await createAssessmentAnswer({
+        assessmentSectionId: assessmentSection.id,
+        value: 1,
+      });
+
+      await createAssessmentResponse({
+        assessmentInstanceId: assessmentInstance.id,
+        questionId: assessmentQuestion.id,
+        answerId: assessmentAnswer.id,
+      });
+      await createAssessmentResponse({
+        assessmentInstanceId: assessmentInstance.id,
+        questionId: assessmentQuestion2.id,
+        answerId: assessmentAnswer.id,
+      });
+      await createAssessmentResponse({
+        assessmentInstanceId: assessmentInstance.id,
+        questionId: assessmentQuestion3.id,
+        answerId: assessmentAnswer.id,
+      });
+
+      const result = await runRules(assessmentInstance);
+      expect(result).toEqual([otherAssessment.name]);
+
+      // Expect first rule NOT TO HAVE triggered (i.e. no new instances
+      // of original assessment)
+      const firstAssessmentInstances = await db.select()
+        .from(assessmentInstancesTable)
+        .where(eq(assessmentInstancesTable.assessmentId, assessment.id))
+        .all();
+      expect(firstAssessmentInstances).toHaveLength(1);
+      expect(firstAssessmentInstances[0].id).toEqual(assessmentInstance.id);
+
+      // Expect second rule TO HAVE triggered
+      const secondAssessmentInstances = await db.select()
+        .from(assessmentInstancesTable)
+        .where(eq(assessmentInstancesTable.assessmentId, otherAssessment.id))
+        .all();
+      expect(secondAssessmentInstances).toHaveLength(1);
     });
   });
 });

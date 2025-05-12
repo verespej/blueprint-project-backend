@@ -13,14 +13,16 @@ import {
   db,
   disordersTable,
   MIGRATIONS_TABLE_NAME,
-  TypDisorder,
-  TypAssessment,
-  TypAssessmentInstance,
-  TypAssessmentResponse,
-  TypAssessmentSection,
-  TypAssessmentSectionAnswer,
-  TypAssessmentSectionQuestion,
-  TypUser,
+  submissionRulesTable,
+  type TypDisorder,
+  type TypAssessment,
+  type TypAssessmentInstance,
+  type TypAssessmentResponse,
+  type TypAssessmentSection,
+  type TypAssessmentSectionAnswer,
+  type TypAssessmentSectionQuestion,
+  type TypSubmissionRule,
+  type TypUser,
   USER_TYPES,
   usersTable,
 } from '#src/db';
@@ -189,6 +191,31 @@ export async function createAssessmentResponse({
       assessmentInstanceId,
       questionId,
       answerId,
+    })
+    .returning()
+    .get();
+}
+
+export async function createSubmissionRule({
+  actionType,
+  actionValue,
+  assessmentId,
+  evalOperation,
+  evalValue,
+  filterType,
+  filterValue,
+  scoreOperation,
+}): Promise<TypSubmissionRule> {
+  return await db.insert(submissionRulesTable)
+    .values({
+      actionType,
+      actionValue,
+      assessmentId,
+      evalOperation,
+      evalValue,
+      filterType,
+      filterValue,
+      scoreOperation,
     })
     .returning()
     .get();

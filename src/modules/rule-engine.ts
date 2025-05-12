@@ -121,7 +121,7 @@ export async function runRules(
   // Get applicable rules
   const rules = await db.select()
     .from(submissionRulesTable)
-    .where(eq(submissionRulesTable.id, assessmentInstance.assessmentId))
+    .where(eq(submissionRulesTable.assessmentId, assessmentInstance.assessmentId))
     .all() as TypSubmissionRule[];
   if (rules.length < 1) {
     return [];
@@ -136,9 +136,12 @@ export async function runRules(
       value: assessmentSectionAnswersTable.value,
     })
     .from(assessmentInstanceResponsesTable)
+    .innerJoin(assessmentSectionQuestionsTable, eq(assessmentInstanceResponsesTable.questionId, assessmentSectionQuestionsTable.id))
+    .innerJoin(assessmentSectionAnswersTable, eq(assessmentInstanceResponsesTable.answerId, assessmentSectionAnswersTable.id))
     .where(eq(assessmentInstanceResponsesTable.assessmentInstanceId, assessmentInstance.id))
     .all();
 
+  // Apply rules
   const returnValues: string[] = [];
   for (const rule of rules) {
     const selectedResponses = responses.filter(
