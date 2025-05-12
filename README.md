@@ -1,5 +1,9 @@
 # Blueprint project backend
 
+## TODOs
+
+- Add request logging
+
 ## Configuration
 
 TODO
@@ -23,7 +27,6 @@ npm run db:seed:local
 - Clinicians can manually choose and assign assessments to patients
 - Allows a patient to take a diagnostic screener (a special assessment)
 - Scores the patient's response to the screener and automatically assigns assessments
-
 
 ### Endpoints:
 
@@ -202,3 +205,15 @@ Output:
   "results": ["ASRM", "PHQ-9"]
 }
 ```
+## Project reqs
+
+1. Instructions for running the code locally (if not hosted)
+2. Description of the problem and solution
+3. Reasoning behind your technical choices
+4. Describe how you would deploy this as a true production app on the platform of your choice:
+    1. How would ensure the application is highly available and performs well?
+    2. How would you secure it?
+    3. What would you add to make it easier to troubleshoot problems while it is running live?
+5. Trade-offs you might have made, anything you left out, or what you might do differently if you were to spend additional time on the project
+6. Link to other code you're particularly proud of
+7. Link to your resume or public profile
