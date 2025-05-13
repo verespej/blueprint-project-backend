@@ -103,17 +103,17 @@ export function registerAssessmentsEndpoints(app) {
             value = parseFloat(value as string);
           }
           return {
-            answer_id: a.id,
-            display_order: a.displayOrder,
+            answerId: a.id,
+            displayOrder: a.displayOrder,
             title: a.title,
             value,
           };
-        }).sort((l, r) => l.display_order - r.display_order);
+        }).sort((l, r) => l.displayOrder - r.displayOrder);
         const formattedQuestions = (questionsBySectionId[section.id] || []).map(q => ({
-          display_order: q.displayOrder,
-          question_id: q.id,
+          displayOrder: q.displayOrder,
+          questionId: q.id,
           title: q.title,
-        })).sort((l, r) => l.display_order - r.display_order);
+        })).sort((l, r) => l.displayOrder - r.displayOrder);
 
         return {
           title: section.title,
@@ -129,9 +129,9 @@ export function registerAssessmentsEndpoints(app) {
             id: assessment.id,
             name: assessment.name,
             disorder: assessment.disorderDisplayName,
-            full_name: assessment.fullName,
+            fullName: assessment.fullName,
             content: {
-              display_name: assessment.displayName,
+              displayName: assessment.displayName,
               sections: formattedSections,
             },
           },

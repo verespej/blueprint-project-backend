@@ -219,7 +219,7 @@ export function registerProvidersEndpoints(app) {
 
       const slug = generateSlug();
 
-      // TODO: Hanlde possibility of slug collision
+      // TODO: Handle possibility of slug collision
       // Note: Would want to set sentAt using another API call. But, for demo
       // purposes, just set it here.
       const assessmentInstance = await db.insert(assessmentInstancesTable)

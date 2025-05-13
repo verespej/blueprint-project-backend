@@ -47,11 +47,11 @@ describe('GET /v1/assessments/:assessmentId', () => {
         expect(res.body.data.assessment.id).toEqual(assessment.id);
         expect(res.body.data.assessment.name).toEqual(assessment.name);
         expect(res.body.data.assessment.disorder).toEqual(disorder.displayName);
-        expect(res.body.data.assessment.full_name).toEqual(assessment.fullName);
+        expect(res.body.data.assessment.fullName).toEqual(assessment.fullName);
 
         const content = res.body.data.assessment.content;
         expect(content).toBeDefined();
-        expect(content.display_name).toEqual(assessment.displayName);
+        expect(content.displayName).toEqual(assessment.displayName);
         expect(content.sections).toHaveLength(1);
 
         const section = content.sections[0];
@@ -61,13 +61,13 @@ describe('GET /v1/assessments/:assessmentId', () => {
         expect(section.questions).toHaveLength(1);
 
         const sectionQuestion = section.questions[0];
-        expect(sectionQuestion.display_order).toEqual(assessmentQuestion.displayOrder);
-        expect(sectionQuestion.question_id).toEqual(assessmentQuestion.id);
+        expect(sectionQuestion.displayOrder).toEqual(assessmentQuestion.displayOrder);
+        expect(sectionQuestion.questionId).toEqual(assessmentQuestion.id);
         expect(sectionQuestion.title).toEqual(assessmentQuestion.title);
 
         const sectionAnswer = section.answers[0];
-        expect(sectionAnswer.answer_id).toEqual(assessmentAnswer.id);
-        expect(sectionAnswer.display_order).toEqual(assessmentAnswer.displayOrder);
+        expect(sectionAnswer.answerId).toEqual(assessmentAnswer.id);
+        expect(sectionAnswer.displayOrder).toEqual(assessmentAnswer.displayOrder);
         expect(sectionAnswer.title).toEqual(assessmentAnswer.title);
         expect(sectionAnswer.value).toEqual(parseFloat(assessmentAnswer.value));
       });
