@@ -148,8 +148,6 @@ export function registerProvidersEndpoints(app) {
   //
   // Note: We'd want the provider's user ID to come from an auth session. But,
   // building full sessions was scoped out for this demo.
-  //
-  // TODO: Should switch assessment name to ID. Just used name to follow the assignment.
   /*
   curl -s -X POST http://localhost:3000/v1/providers/PROVIDER123/patients/PATIENT123/assessments \
     -H "Content-Type: application/json" \
@@ -233,6 +231,7 @@ export function registerProvidersEndpoints(app) {
         .returning()
         .get();
 
+      // TODO: Give return value a specific shape
       res.status(StatusCodes.CREATED).json({
         data: {
           assessmentInstance,

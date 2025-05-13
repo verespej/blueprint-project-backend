@@ -3,6 +3,15 @@
 ## TODOs
 
 - Add request logging
+- Generic catch-all error handler to produce formatted errors
+- Proper authentication and authorization
+- Review and revise APIs to avoid information leakage
+    - Don't expose certain IDs in URLs - get them from sessions
+    - API return values - don't expose full DB records
+- Monitoring and alerting
+    - System thresholds
+    - Critical errors
+    - Log streams
 
 ## Configuration
 

@@ -24,7 +24,7 @@ export function registerAssessmentsEndpoints(app) {
   // curl -s http://localhost:3000/v1/assessments | jq
   //
   app.get(
-    '/vq/assessments',
+    '/v1/assessments',
     async (_req, res) => {
       const assessments = await db
         .select({
