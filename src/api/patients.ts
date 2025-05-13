@@ -10,12 +10,70 @@ import {
   assessmentSectionAnswersTable,
   assessmentSectionQuestionsTable,
   assessmentSectionsTable,
+  assessmentsTable,
   db,
   usersTable,
 } from '#src/db';
 import { runRules } from '#src/modules/rule-engine';
 
+import { type TypAssessmentInstanceResponse } from './common/types';
+
 export function registerPatientsEndpoints(app) {
+  //
+  // Record a response to a question for an assessment instance.
+  //
+  // Note: We'd want the patient's user ID to come from an auth session. But,
+  // building full sessions was scoped out for this demo.
+  //
+  // curl http://localhost:3000/v1/patients/58f05f3c-d0cf-4ef8-b58b-78e82db7f432/assessments | jq
+  //
+  app.get(
+    '/v1/patients/:patientId/assessments',
+    validate({
+      params: {
+        patientId: z.string(),
+      },
+    }),
+    async (req, res) => {
+      const patient = await db
+        .select({ id: usersTable.id })
+        .from(usersTable)
+        .where(eq(usersTable.id, req.params.patientId))
+        .get();
+      if (!patient) {
+        res.status(StatusCodes.NOT_FOUND).json({ errorMessage: 'No such patient' });
+        return;
+      }
+
+      const assessmentInstances: TypAssessmentInstanceResponse[] = db
+        .select({
+          assessmentDisplayName: assessmentsTable.displayName,
+          assessmentFullName: assessmentsTable.fullName,
+          assessmentId: assessmentsTable.id,
+          assessmentName: assessmentsTable.name,
+          id: assessmentInstancesTable.id,
+          patientId: assessmentInstancesTable.patientId,
+          providerFamilyName: usersTable.familyName,
+          providerGivenName: usersTable.givenName,
+          providerId: assessmentInstancesTable.providerId,
+          sentAt: assessmentInstancesTable.sentAt,
+          slug: assessmentInstancesTable.slug,
+          submittedAt: assessmentInstancesTable.submittedAt,
+        })
+        .from(assessmentInstancesTable)
+        .innerJoin(assessmentsTable, eq(assessmentInstancesTable.assessmentId, assessmentsTable.id))
+        .innerJoin(usersTable, eq(assessmentInstancesTable.providerId, usersTable.id))
+        .where(eq(assessmentInstancesTable.patientId, patient.id))
+        .all();
+
+      res.status(StatusCodes.CREATED).json({
+        data: {
+          assessmentInstances,
+        },
+      });
+    },
+  );
+
   //
   // Record a response to a question for an assessment instance.
   //

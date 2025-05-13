@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "e14a2e8f-0449-460e-a293-3f62c0cddeb0",
+  "id": "9d4dca54-c3a5-4c14-b8a0-2810254be49f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "assessment_instance_responses": {
@@ -545,7 +545,7 @@
           "name": "display_name",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "disorder_id": {

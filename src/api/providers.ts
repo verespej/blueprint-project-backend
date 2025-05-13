@@ -13,6 +13,8 @@ import {
 } from '#src/db';
 import { generateSlug } from '#src/utils/slugs';
 
+import { type TypAssessmentInstanceResponse } from './common/types';
+
 export function registerProvidersEndpoints(app) {
   //
   // Get patients for provider.
@@ -118,13 +120,16 @@ export function registerProvidersEndpoints(app) {
         return;
       }
 
-      const assessmentInstances = await db
+      const assessmentInstances: TypAssessmentInstanceResponse[] = await db
         .select({
           assessmentDisplayName: assessmentsTable.displayName,
           assessmentFullName: assessmentsTable.fullName,
           assessmentId: assessmentInstancesTable.assessmentId,
+          assessmentName: assessmentsTable.name,
           id: assessmentInstancesTable.id,
           patientId: assessmentInstancesTable.patientId,
+          providerFamilyName: usersTable.familyName,
+          providerGivenName: usersTable.givenName,
           providerId: assessmentInstancesTable.providerId,
           sentAt: assessmentInstancesTable.sentAt,
           slug: assessmentInstancesTable.slug,
@@ -132,6 +137,7 @@ export function registerProvidersEndpoints(app) {
         })
         .from(assessmentInstancesTable)
         .innerJoin(assessmentsTable, eq(assessmentInstancesTable.assessmentId, assessmentsTable.id))
+        .innerJoin(usersTable, eq(assessmentInstancesTable.providerId, usersTable.id))
         .where(and(
           eq(assessmentInstancesTable.providerId, provider.id),
           eq(assessmentInstancesTable.patientId, patient.id),
@@ -170,7 +176,11 @@ export function registerProvidersEndpoints(app) {
     }),
     async (req, res) => {
       const provider = await db
-        .select({ id: usersTable.id })
+        .select({
+          familyName: usersTable.familyName,
+          givenName: usersTable.givenName,
+          id: usersTable.id,
+        })
         .from(usersTable)
         .where(eq(usersTable.id, req.params.providerId))
         .get();
@@ -213,6 +223,7 @@ export function registerProvidersEndpoints(app) {
           displayName: assessmentsTable.displayName,
           fullName: assessmentsTable.fullName,
           id: assessmentsTable.id,
+          name: assessmentsTable.name,
         })
         .from(assessmentsTable)
         .where(eq(assessmentsTable.id, req.body.assessmentId))
@@ -238,19 +249,23 @@ export function registerProvidersEndpoints(app) {
         .returning()
         .get();
 
+      const assessmentInstanceResponse: TypAssessmentInstanceResponse = {
+        assessmentDisplayName: assessment.displayName,
+        assessmentFullName: assessment.fullName,
+        assessmentId: assessment.id,
+        assessmentName: assessment.name,
+        id: assessmentInstance.id,
+        patientId: assessmentInstance.patientId,
+        providerFamilyName: provider.familyName,
+        providerGivenName: provider.givenName,
+        providerId: provider.id,
+        sentAt: assessmentInstance.sentAt,
+        slug: assessmentInstance.slug,
+        submittedAt: assessmentInstance.submittedAt,
+      };
       res.status(StatusCodes.CREATED).json({
         data: {
-          assessmentInstance: {
-            assessmentDisplayName: assessment.displayName,
-            assessmentFullName: assessment.fullName,
-            assessmentId: assessmentInstance.assessmentId,
-            id: assessmentInstance.id,
-            patientId: assessmentInstance.patientId,
-            providerId: assessmentInstance.providerId,
-            sentAt: assessmentInstance.sentAt,
-            slug: assessmentInstance.slug,
-            submittedAt: assessmentInstance.submittedAt,
-          },
+          assessmentInstance: assessmentInstanceResponse,
         },
       });
     },

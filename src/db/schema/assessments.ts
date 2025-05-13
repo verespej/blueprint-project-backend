@@ -38,7 +38,7 @@ export const assessmentsTable = sqliteTable('assessments', {
 
   name: text().notNull(),
   fullName: text('full_name').notNull(),
-  displayName: text('display_name'),
+  displayName: text('display_name').notNull(),
   disorderId: text('disorder_id').notNull().references(() => disordersTable.id),
 
   locked: integer({ mode: 'boolean' }).notNull(), // Stored as int in DB, but set as boolean on object

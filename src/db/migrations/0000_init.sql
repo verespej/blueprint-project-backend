@@ -72,7 +72,7 @@ CREATE TABLE `assessments` (
 	`id` text(36) PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
 	`full_name` text NOT NULL,
-	`display_name` text,
+	`display_name` text NOT NULL,
 	`disorder_id` text NOT NULL,
 	`locked` integer NOT NULL,
 	`created_at` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
