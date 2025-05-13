@@ -120,6 +120,8 @@ export function registerProvidersEndpoints(app) {
 
       const assessmentInstances = await db
         .select({
+          assessmentDisplayName: assessmentsTable.displayName,
+          assessmentFullName: assessmentsTable.fullName,
           assessmentId: assessmentInstancesTable.assessmentId,
           id: assessmentInstancesTable.id,
           patientId: assessmentInstancesTable.patientId,
@@ -129,6 +131,7 @@ export function registerProvidersEndpoints(app) {
           submittedAt: assessmentInstancesTable.submittedAt,
         })
         .from(assessmentInstancesTable)
+        .innerJoin(assessmentsTable, eq(assessmentInstancesTable.assessmentId, assessmentsTable.id))
         .where(and(
           eq(assessmentInstancesTable.providerId, provider.id),
           eq(assessmentInstancesTable.patientId, patient.id),
@@ -206,7 +209,11 @@ export function registerProvidersEndpoints(app) {
       }
 
       const assessment = await db
-        .select({ id: assessmentsTable.id })
+        .select({
+          displayName: assessmentsTable.displayName,
+          fullName: assessmentsTable.fullName,
+          id: assessmentsTable.id,
+        })
         .from(assessmentsTable)
         .where(eq(assessmentsTable.id, req.body.assessmentId))
         .get();
@@ -231,10 +238,19 @@ export function registerProvidersEndpoints(app) {
         .returning()
         .get();
 
-      // TODO: Give return value a specific shape
       res.status(StatusCodes.CREATED).json({
         data: {
-          assessmentInstance,
+          assessmentInstance: {
+            assessmentDisplayName: assessment.displayName,
+            assessmentFullName: assessment.fullName,
+            assessmentId: assessmentInstance.assessmentId,
+            id: assessmentInstance.id,
+            patientId: assessmentInstance.patientId,
+            providerId: assessmentInstance.providerId,
+            sentAt: assessmentInstance.sentAt,
+            slug: assessmentInstance.slug,
+            submittedAt: assessmentInstance.submittedAt,
+          },
         },
       });
     },
