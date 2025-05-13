@@ -12,7 +12,7 @@ import {
   createAssessmentAnswer,
 } from '#test/data-utils';
 
-describe('GET /assessments/:assessmentName', () => {
+describe('GET /v1/assessments/:assessmentId', () => {
   let disorder;
   let assessment;
   let assessmentSection;
@@ -40,7 +40,7 @@ describe('GET /assessments/:assessmentName', () => {
 
   it('succeeds and returns formatted assessment', async () => {
     await request(app)
-      .get(`/assessments/${assessment.name}`)
+      .get(`/v1/assessments/${assessment.id}`)
       .expect(200)
       .then(res => {
         expect(res.body.data.assessment).toBeDefined();

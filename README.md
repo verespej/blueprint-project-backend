@@ -8,6 +8,11 @@
 
 TODO
 
+Create a test config file `.env.test` containing:
+```
+DB_URL=:memory:
+```
+
 
 ## DB
 
