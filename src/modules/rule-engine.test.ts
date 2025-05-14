@@ -1,6 +1,14 @@
-import { eq } from 'drizzle-orm';
+import { count, eq } from 'drizzle-orm';
 import { v4 as uuid } from 'uuid';
-import { beforeAll, describe, expect, it} from 'vitest';
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 
 import {
   ASSESSMENT_SECTION_ANSWER_VALUE_TYPES,
@@ -254,15 +262,50 @@ describe('rule-engine', () => {
         expect(result).toEqual(otherAssessment.name);
 
         const automatedActionUserId = await getAutomatedActionUserId();
-        const newdAssessmentInstance = await db.select()
+        const newAssessmentInstance = await db.select()
           .from(assessmentInstancesTable)
           .where(eq(assessmentInstancesTable.assessmentId, otherAssessment.id))
           .get();
-        expect(newdAssessmentInstance).toBeDefined();
-        expect(newdAssessmentInstance!.providerId).toEqual(automatedActionUserId);
-        expect(newdAssessmentInstance!.patientId).toEqual(assessmentInstance.patientId);
-        expect(newdAssessmentInstance!.assessmentId).not.toEqual(assessmentInstance.assessmentId);
-        expect(newdAssessmentInstance!.assessmentId).toEqual(otherAssessment.id);
+        expect(newAssessmentInstance).toBeDefined();
+        expect(newAssessmentInstance!.providerId).toEqual(automatedActionUserId);
+        expect(newAssessmentInstance!.patientId).toEqual(assessmentInstance.patientId);
+        expect(newAssessmentInstance!.assessmentId).not.toEqual(assessmentInstance.assessmentId);
+        expect(newAssessmentInstance!.assessmentId).toEqual(otherAssessment.id);
+      });
+
+      describe('testing with frozen time', () => {
+        beforeEach(() => vi.useFakeTimers());
+        afterEach(() => vi.useRealTimers());
+
+        it('only assigns once per day', async () => {
+          const otherDisorder = await createDisorder();
+          const otherAssessment = await createAssessment({
+            disorderId: otherDisorder.id,
+            locked: true,
+          });
+
+          let result = await _testExports.performAction(
+            SUBMISSION_RULE_ACTION_TYPES.ASSIGN_ASSESSMENT,
+            otherAssessment.id,
+            assessmentInstance,
+          );
+          expect(result).toEqual(otherAssessment.name);
+
+          // Duplicate
+          result = await _testExports.performAction(
+            SUBMISSION_RULE_ACTION_TYPES.ASSIGN_ASSESSMENT,
+            otherAssessment.id,
+            assessmentInstance,
+          );
+          expect(result).toBe(null);
+
+          const newAssessmentInstanceQueryResult = await db
+            .select({ count: count() })
+            .from(assessmentInstancesTable)
+            .where(eq(assessmentInstancesTable.assessmentId, otherAssessment.id))
+            .get();
+          expect(newAssessmentInstanceQueryResult!.count).toEqual(1);
+        });
       });
     });
   });

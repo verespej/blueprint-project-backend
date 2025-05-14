@@ -1,5 +1,4 @@
-import { eq } from 'drizzle-orm';
-import { isNil } from 'lodash';
+import { and, count, eq, gte, lt } from 'drizzle-orm';
 
 import {
   ASSESSMENT_SECTION_ANSWER_VALUE_TYPES,
@@ -22,6 +21,7 @@ import {
   type TypSubmissionRuleScoreOp,
 } from '#src/db';
 import { getAutomatedActionUserId } from '#src/modules/system-users';
+import { startOfDate } from '#src/utils/dates';
 import { generateSlug } from '#src/utils/slugs';
 
 type ApplyFilterParamAssessmentResponseMap = {
@@ -89,7 +89,7 @@ async function performAction(
   actionType: TypSubmissionRuleActionType,
   actionValue: string,
   assessmentInstance: Pick<TypAssessmentInstance, 'patientId' | 'providerId'>,
-): Promise<string> {
+): Promise<string | null> {
   if (actionType === SUBMISSION_RULE_ACTION_TYPES.ASSIGN_ASSESSMENT) {
     const assessment = await db
       .select({ id: assessmentsTable.id, name: assessmentsTable.name })
@@ -100,18 +100,44 @@ async function performAction(
       throw new Error('No matching assessment');
     }
 
-    // TODO: Hanlde possibility of slug collision
     // TODO: Should we copy the provider from the original assignment?
-    const automatedActionUserId = await getAutomatedActionUserId();
+    const providerId = await getAutomatedActionUserId();
+    const patientId = assessmentInstance.patientId;
+    const assessmentId = assessment.id;
+    const slug = generateSlug();
+    const sentAt = new Date();
+
+    // Limit the number of times a given assessment is automatically assigned
+    // to a given patient to once per day.
+    const sentAtDayRangeStart = startOfDate(sentAt).toISOString();
+    const sentAtDayRangeEnd = startOfDate(sentAt, 1).toISOString();
+    const duplicatesQueryResult = await db
+      .select({ count: count() })
+      .from(assessmentInstancesTable)
+      .where(
+        and(
+          eq(assessmentInstancesTable.providerId, providerId),
+          eq(assessmentInstancesTable.patientId, patientId),
+          eq(assessmentInstancesTable.assessmentId, assessmentId),
+          gte(assessmentInstancesTable.sentAt, sentAtDayRangeStart),
+          lt(assessmentInstancesTable.sentAt, sentAtDayRangeEnd),
+        ),
+      )
+      .get();
+    const alreadySent = duplicatesQueryResult!.count > 0;
+    if (alreadySent) {
+      return null;
+    }
+
+    // TODO: Handle possibility of slug collision
     await db.insert(assessmentInstancesTable)
       .values({
-        providerId: automatedActionUserId,
-        patientId: assessmentInstance.patientId,
-        assessmentId: assessment.id,
-        slug: generateSlug(),
-        sentAt: new Date().toISOString(),
+        providerId,
+        patientId,
+        assessmentId,
+        slug,
+        sentAt: sentAt.toISOString(),
       });
-
     return assessment.name;
   }
 
@@ -159,13 +185,13 @@ export async function runRules(
         rule.actionValue,
         assessmentInstance,
       );
-      if (!isNil(actionResult)) {
+      if (actionResult != null) { // Note: Null-ish (i.e. !=) intentional
         returnValues.push(actionResult);
       }
     }
   }
 
-  return returnValues;
+  return Array.from(new Set(returnValues));
 }
 
 // Exports only for testing
