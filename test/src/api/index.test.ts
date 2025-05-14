@@ -62,11 +62,11 @@ describe('GET /v1/assessments/:assessmentId', () => {
 
         const sectionQuestion = section.questions[0];
         expect(sectionQuestion.displayOrder).toEqual(assessmentQuestion.displayOrder);
-        expect(sectionQuestion.questionId).toEqual(assessmentQuestion.id);
+        expect(sectionQuestion.id).toEqual(assessmentQuestion.id);
         expect(sectionQuestion.title).toEqual(assessmentQuestion.title);
 
         const sectionAnswer = section.answers[0];
-        expect(sectionAnswer.answerId).toEqual(assessmentAnswer.id);
+        expect(sectionAnswer.id).toEqual(assessmentAnswer.id);
         expect(sectionAnswer.displayOrder).toEqual(assessmentAnswer.displayOrder);
         expect(sectionAnswer.title).toEqual(assessmentAnswer.title);
         expect(sectionAnswer.value).toEqual(parseFloat(assessmentAnswer.value));

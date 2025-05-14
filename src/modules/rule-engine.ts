@@ -21,6 +21,7 @@ import {
   type TypSubmissionRuleEvalOp,
   type TypSubmissionRuleScoreOp,
 } from '#src/db';
+import { getAutomatedActionUserId } from '#src/modules/system-users';
 import { generateSlug } from '#src/utils/slugs';
 
 type ApplyFilterParamAssessmentResponseMap = {
@@ -100,9 +101,11 @@ async function performAction(
     }
 
     // TODO: Hanlde possibility of slug collision
+    // TODO: Should we copy the provider from the original assignment?
+    const automatedActionUserId = await getAutomatedActionUserId();
     await db.insert(assessmentInstancesTable)
       .values({
-        providerId: assessmentInstance.providerId,
+        providerId: automatedActionUserId,
         patientId: assessmentInstance.patientId,
         assessmentId: assessment.id,
         slug: generateSlug(),

@@ -7,6 +7,7 @@ import { timestampFieldsSchemas } from './common/timestamp-fields';
 export const USER_TYPES = {
   PATIENT: 'patient',
   PROVIDER: 'provider',
+  SYSTEM: 'system',
 } as const;
 
 export type TypUserType = typeof USER_TYPES[

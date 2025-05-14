@@ -12,15 +12,14 @@ import {
   SUBMISSION_RULE_SCORE_OPS,
   type TypAssessment,
   type TypAssessmentInstance,
-  // type TypAssessmentResponse,
   type TypAssessmentSection,
-  // type TypAssessmentSectionAnswer,
   type TypAssessmentSectionAnswerValueType,
   type TypAssessmentSectionQuestion,
   type TypDisorder,
   type TypUser,
   USER_TYPES,
 } from '#src/db';
+import { getAutomatedActionUserId } from '#src/modules/system-users';
 import {
   clearDb,
   createAssessment,
@@ -254,12 +253,13 @@ describe('rule-engine', () => {
         );
         expect(result).toEqual(otherAssessment.name);
 
+        const automatedActionUserId = await getAutomatedActionUserId();
         const newdAssessmentInstance = await db.select()
           .from(assessmentInstancesTable)
           .where(eq(assessmentInstancesTable.assessmentId, otherAssessment.id))
           .get();
         expect(newdAssessmentInstance).toBeDefined();
-        expect(newdAssessmentInstance!.providerId).toEqual(assessmentInstance.providerId);
+        expect(newdAssessmentInstance!.providerId).toEqual(automatedActionUserId);
         expect(newdAssessmentInstance!.patientId).toEqual(assessmentInstance.patientId);
         expect(newdAssessmentInstance!.assessmentId).not.toEqual(assessmentInstance.assessmentId);
         expect(newdAssessmentInstance!.assessmentId).toEqual(otherAssessment.id);
