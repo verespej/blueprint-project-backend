@@ -97,6 +97,9 @@ async function seedAssessments() {
       },
     ]);
 
+  //
+  // BPDS
+  //
   const bpdsAssessment = (await db.select().from(assessmentsTable)
     .where(eq(assessmentsTable.name, 'BPDS'))
     .get())!;
@@ -199,6 +202,410 @@ async function seedAssessments() {
         disorderId: substanceUseDisorder.id,
         displayOrder: 7,
         title: 'Drinking at least 4 drinks of any kind of alcohol in a single day?',
+      },
+    ]);
+
+  //
+  // PHQ-9
+  //
+  const phq9Assessment = (await db.select().from(assessmentsTable)
+    .where(eq(assessmentsTable.name, 'PHQ-9'))
+    .get())!;
+  const phq9AssessmentSection1 = await db.insert(assessmentSectionsTable)
+    .values([
+      {
+        assessmentId: phq9Assessment.id,
+        type: ASSESSMENT_SECTION_TYPES.STANDARD,
+        title: 'During the past TWO (2) WEEKS, how much (or how often) have you been bothered by the following problems?',
+      },
+    ])
+    .returning()
+    .get();
+
+  await db.insert(assessmentSectionAnswersTable)
+    .values([
+      {
+        assessmentSectionId: phq9AssessmentSection1.id,
+        displayOrder: 0,
+        title: 'Not at all',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '0',
+      },
+      {
+        assessmentSectionId: phq9AssessmentSection1.id,
+        displayOrder: 1,
+        title: 'Several days',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '1',
+      },
+      {
+        assessmentSectionId: phq9AssessmentSection1.id,
+        displayOrder: 2,
+        title: 'More than half the days',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '2',
+      },
+      {
+        assessmentSectionId: phq9AssessmentSection1.id,
+        displayOrder: 3,
+        title: 'Nearly every day',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '3',
+      },
+    ]);
+
+  await db.insert(assessmentSectionQuestionsTable)
+    .values([
+      {
+        assessmentSectionId: phq9AssessmentSection1.id,
+        disorderId: depressionDisorder.id,
+        displayOrder: 0,
+        title: 'Little interest or pleasure in doing things?',
+      },
+      {
+        assessmentSectionId: phq9AssessmentSection1.id,
+        disorderId: depressionDisorder.id,
+        displayOrder: 1,
+        title: 'Feeling down, depressed, or hopeless?',
+      },
+      {
+        assessmentSectionId: phq9AssessmentSection1.id,
+        disorderId: depressionDisorder.id,
+        displayOrder: 2,
+        title: 'Trouble falling or staying asleep, or sleeping too much?',
+      },
+      {
+        assessmentSectionId: phq9AssessmentSection1.id,
+        disorderId: depressionDisorder.id,
+        displayOrder: 3,
+        title: 'Feeling tired or having little energy?',
+      },
+      {
+        assessmentSectionId: phq9AssessmentSection1.id,
+        disorderId: depressionDisorder.id,
+        displayOrder: 4,
+        title: 'Poor appetite or overeating?',
+      },
+      {
+        assessmentSectionId: phq9AssessmentSection1.id,
+        disorderId: depressionDisorder.id,
+        displayOrder: 5,
+        title: 'Feeling bad about yourself — or that you are a failure or have let yourself or your family down?',
+      },
+      {
+        assessmentSectionId: phq9AssessmentSection1.id,
+        disorderId: depressionDisorder.id,
+        displayOrder: 6,
+        title: 'Trouble concentrating on things, such as reading the newspaper or watching television?',
+      },
+      {
+        assessmentSectionId: phq9AssessmentSection1.id,
+        disorderId: depressionDisorder.id,
+        displayOrder: 7,
+        title: 'Moving or speaking so slowly that other people could have noticed? Or so fidgety or restless that you have been moving a lot more than usual?',
+      },
+      {
+        assessmentSectionId: phq9AssessmentSection1.id,
+        disorderId: depressionDisorder.id,
+        displayOrder: 8,
+        title: 'Thoughts that you would be better off dead, or thoughts of hurting yourself in some way?',
+      },
+    ]);
+
+  //
+  // ASRM
+  //
+  const asrmAssessment = (await db.select().from(assessmentsTable)
+    .where(eq(assessmentsTable.name, 'ASRM'))
+    .get())!;
+
+  const asrmAssessmentSection1 = await db.insert(assessmentSectionsTable)
+    .values([
+      {
+        assessmentId: asrmAssessment.id,
+        type: ASSESSMENT_SECTION_TYPES.STANDARD,
+        title: 'Happiness',
+      },
+    ])
+    .returning()
+    .get();
+  await db.insert(assessmentSectionAnswersTable)
+    .values([
+      {
+        assessmentSectionId: asrmAssessmentSection1.id,
+        displayOrder: 0,
+        title: 'I do not feel happier or more cheerful than usual',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '1',
+      },
+      {
+        assessmentSectionId: asrmAssessmentSection1.id,
+        displayOrder: 1,
+        title: 'I occasionally feel happier or more cheerful than usual',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '2',
+      },
+      {
+        assessmentSectionId: asrmAssessmentSection1.id,
+        displayOrder: 2,
+        title: 'I often feel happier or more cheerful than usual',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '3',
+      },
+      {
+        assessmentSectionId: asrmAssessmentSection1.id,
+        displayOrder: 3,
+        title: 'I feel happier or more cheerful than usual most of the time',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '4',
+      },
+      {
+        assessmentSectionId: asrmAssessmentSection1.id,
+        displayOrder: 4,
+        title: 'I feel happier of more cheerful than usual all of the time',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '5',
+      },
+    ]);
+  await db.insert(assessmentSectionQuestionsTable)
+    .values([
+      {
+        assessmentSectionId: asrmAssessmentSection1.id,
+        disorderId: maniaDisorder.id,
+        displayOrder: 0,
+        title: 'Choose the statement that best describes your mood for the past ONE (1) WEEK',
+      },
+    ]);
+
+  const asrmAssessmentSection2 = await db.insert(assessmentSectionsTable)
+    .values([
+      {
+        assessmentId: asrmAssessment.id,
+        type: ASSESSMENT_SECTION_TYPES.STANDARD,
+        title: 'Self-confidence',
+      },
+    ])
+    .returning()
+    .get();
+  await db.insert(assessmentSectionAnswersTable)
+    .values([
+      {
+        assessmentSectionId: asrmAssessmentSection2.id,
+        displayOrder: 0,
+        title: 'I do not feel more self-confident than usual',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '1',
+      },
+      {
+        assessmentSectionId: asrmAssessmentSection2.id,
+        displayOrder: 1,
+        title: 'I occasionally feel more self-confident than usual',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '2',
+      },
+      {
+        assessmentSectionId: asrmAssessmentSection2.id,
+        displayOrder: 2,
+        title: 'I often feel more self-confident than usual',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '3',
+      },
+      {
+        assessmentSectionId: asrmAssessmentSection2.id,
+        displayOrder: 3,
+        title: 'I frequently feel more self-confident than usual',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '4',
+      },
+      {
+        assessmentSectionId: asrmAssessmentSection2.id,
+        displayOrder: 4,
+        title: 'I feel extremely self-confident all of the time',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '5',
+      },
+    ]);
+  await db.insert(assessmentSectionQuestionsTable)
+    .values([
+      {
+        assessmentSectionId: asrmAssessmentSection2.id,
+        disorderId: maniaDisorder.id,
+        displayOrder: 0,
+        title: 'Choose the statement that best describes your mood for the past ONE (1) WEEK',
+      },
+    ]);
+
+  const asrmAssessmentSection3 = await db.insert(assessmentSectionsTable)
+    .values([
+      {
+        assessmentId: asrmAssessment.id,
+        type: ASSESSMENT_SECTION_TYPES.STANDARD,
+        title: 'Sleep',
+      },
+    ])
+    .returning()
+    .get();
+  await db.insert(assessmentSectionAnswersTable)
+    .values([
+      {
+        assessmentSectionId: asrmAssessmentSection3.id,
+        displayOrder: 0,
+        title: 'I do not need less sleep than usual',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '1',
+      },
+      {
+        assessmentSectionId: asrmAssessmentSection3.id,
+        displayOrder: 1,
+        title: 'I occasionally need less sleep than usual',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '2',
+      },
+      {
+        assessmentSectionId: asrmAssessmentSection3.id,
+        displayOrder: 2,
+        title: 'I often need less sleep than usual',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '3',
+      },
+      {
+        assessmentSectionId: asrmAssessmentSection3.id,
+        displayOrder: 3,
+        title: 'I frequently need less sleep than usual',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '4',
+      },
+      {
+        assessmentSectionId: asrmAssessmentSection3.id,
+        displayOrder: 4,
+        title: 'I can go all day and all night without any sleep and still not feel tired',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '5',
+      },
+    ]);
+  await db.insert(assessmentSectionQuestionsTable)
+    .values([
+      {
+        assessmentSectionId: asrmAssessmentSection3.id,
+        disorderId: maniaDisorder.id,
+        displayOrder: 0,
+        title: 'Choose the statement that best describes your mood for the past ONE (1) WEEK',
+      },
+    ]);
+
+  const asrmAssessmentSection4 = await db.insert(assessmentSectionsTable)
+    .values([
+      {
+        assessmentId: asrmAssessment.id,
+        type: ASSESSMENT_SECTION_TYPES.STANDARD,
+        title: 'Communication',
+      },
+    ])
+    .returning()
+    .get();
+  await db.insert(assessmentSectionAnswersTable)
+    .values([
+      {
+        assessmentSectionId: asrmAssessmentSection4.id,
+        displayOrder: 0,
+        title: 'I do not talk more than usual',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '1',
+      },
+      {
+        assessmentSectionId: asrmAssessmentSection4.id,
+        displayOrder: 1,
+        title: 'I occasionally talk more than usual',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '2',
+      },
+      {
+        assessmentSectionId: asrmAssessmentSection4.id,
+        displayOrder: 2,
+        title: 'I often talk more than usual',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '3',
+      },
+      {
+        assessmentSectionId: asrmAssessmentSection4.id,
+        displayOrder: 3,
+        title: 'I frequently talk more than usual',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '4',
+      },
+      {
+        assessmentSectionId: asrmAssessmentSection4.id,
+        displayOrder: 4,
+        title: 'I talk constantly and cannot be interrupted',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '5',
+      },
+    ]);
+  await db.insert(assessmentSectionQuestionsTable)
+    .values([
+      {
+        assessmentSectionId: asrmAssessmentSection4.id,
+        disorderId: maniaDisorder.id,
+        displayOrder: 0,
+        title: 'Choose the statement that best describes your mood for the past ONE (1) WEEK',
+      },
+    ]);
+
+  const asrmAssessmentSection5 = await db.insert(assessmentSectionsTable)
+    .values([
+      {
+        assessmentId: asrmAssessment.id,
+        type: ASSESSMENT_SECTION_TYPES.STANDARD,
+        title: 'Sleep',
+      },
+    ])
+    .returning()
+    .get();
+  await db.insert(assessmentSectionAnswersTable)
+    .values([
+      {
+        assessmentSectionId: asrmAssessmentSection5.id,
+        displayOrder: 0,
+        title: 'I have not been more active (either socially, sexually, at work, home, or school) than usual',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '1',
+      },
+      {
+        assessmentSectionId: asrmAssessmentSection5.id,
+        displayOrder: 1,
+        title: 'I have occasionally been more active than usual',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '2',
+      },
+      {
+        assessmentSectionId: asrmAssessmentSection5.id,
+        displayOrder: 2,
+        title: 'I have often been more active than usual',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '3',
+      },
+      {
+        assessmentSectionId: asrmAssessmentSection5.id,
+        displayOrder: 3,
+        title: 'I have frequently been more active than usual',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '4',
+      },
+      {
+        assessmentSectionId: asrmAssessmentSection5.id,
+        displayOrder: 4,
+        title: 'I am constantly more active or on the go all the time',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '5',
+      },
+    ]);
+  await db.insert(assessmentSectionQuestionsTable)
+    .values([
+      {
+        assessmentSectionId: asrmAssessmentSection5.id,
+        disorderId: maniaDisorder.id,
+        displayOrder: 0,
+        title: 'Choose the statement that best describes your mood for the past ONE (1) WEEK',
       },
     ]);
 }
