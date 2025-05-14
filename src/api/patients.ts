@@ -343,14 +343,18 @@ export function registerPatientsEndpoints(app) {
       // TODO: Running the rules engine needs to be made idempotent.
       const assignedFollowUpAssessmentNames = await runRules(assessmentInstance);
 
-      await db.update(assessmentInstancesTable)
+      const updatedValues = await db.update(assessmentInstancesTable)
         .set({ submittedAt: new Date().toISOString() })
         .where(eq(assessmentInstancesTable.id, assessmentInstance.id))
-        .run();
+        .returning({ submittedAt: assessmentInstancesTable.submittedAt })
+        .get();
 
       res.status(StatusCodes.CREATED).json({
         data: {
-          assessmentInstance,
+          assessmentInstance: {
+            ...assessmentInstance,
+            ...updatedValues,
+          },
           followUpAssessmentsAssigned: assignedFollowUpAssessmentNames,
         },
       });

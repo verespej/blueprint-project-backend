@@ -4,6 +4,8 @@
 
 - Assessment sections should have display orders
 - Add more tests and test coverage
+- Running of rules engine should be idempotent
+    - Note: This impacts the assignment submission API endpoint
 - Add request logging
 - Generic catch-all error handler to produce formatted errors (including re-formatting zod errors)
 - Proper authentication and authorization
