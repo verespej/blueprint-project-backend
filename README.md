@@ -2,6 +2,7 @@
 
 ## TODOs
 
+- Assessment sections should have display orders
 - Add request logging
 - Generic catch-all error handler to produce formatted errors (including re-formatting zod errors)
 - Proper authentication and authorization

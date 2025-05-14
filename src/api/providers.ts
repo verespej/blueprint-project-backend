@@ -13,7 +13,7 @@ import {
 } from '#src/db';
 import { generateSlug } from '#src/utils/slugs';
 
-import { type TypAssessmentInstanceResponse } from './common/types';
+import { type TypAssessmentInstancePayload } from './common/types';
 
 export function registerProvidersEndpoints(app) {
   //
@@ -120,7 +120,7 @@ export function registerProvidersEndpoints(app) {
         return;
       }
 
-      const assessmentInstances: TypAssessmentInstanceResponse[] = await db
+      const assessmentInstances: TypAssessmentInstancePayload[] = await db
         .select({
           assessmentDisplayName: assessmentsTable.displayName,
           assessmentFullName: assessmentsTable.fullName,
@@ -249,7 +249,7 @@ export function registerProvidersEndpoints(app) {
         .returning()
         .get();
 
-      const assessmentInstanceResponse: TypAssessmentInstanceResponse = {
+      const assessmentInstanceResponse: TypAssessmentInstancePayload = {
         assessmentDisplayName: assessment.displayName,
         assessmentFullName: assessment.fullName,
         assessmentId: assessment.id,

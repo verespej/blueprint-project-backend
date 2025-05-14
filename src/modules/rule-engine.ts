@@ -87,7 +87,7 @@ function evalScore(
 async function performAction(
   actionType: TypSubmissionRuleActionType,
   actionValue: string,
-  assessmentInstance: TypAssessmentInstance,
+  assessmentInstance: Pick<TypAssessmentInstance, 'patientId' | 'providerId'>,
 ): Promise<string> {
   if (actionType === SUBMISSION_RULE_ACTION_TYPES.ASSIGN_ASSESSMENT) {
     const assessment = await db
@@ -116,7 +116,7 @@ async function performAction(
 }
 
 export async function runRules(
-  assessmentInstance: TypAssessmentInstance,
+  assessmentInstance: Pick<TypAssessmentInstance, 'assessmentId' | 'id' | 'patientId' | 'providerId'>,
 ): Promise<string[]> {
   // Get applicable rules
   const rules = await db.select()

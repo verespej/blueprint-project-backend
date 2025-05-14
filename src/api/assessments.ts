@@ -103,15 +103,15 @@ export function registerAssessmentsEndpoints(app) {
             value = parseFloat(value as string);
           }
           return {
-            answerId: a.id,
             displayOrder: a.displayOrder,
+            id: a.id,
             title: a.title,
             value,
           };
         }).sort((l, r) => l.displayOrder - r.displayOrder);
         const formattedQuestions = (questionsBySectionId[section.id] || []).map(q => ({
           displayOrder: q.displayOrder,
-          questionId: q.id,
+          id: q.id,
           title: q.title,
         })).sort((l, r) => l.displayOrder - r.displayOrder);
 
