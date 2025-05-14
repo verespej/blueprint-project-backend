@@ -608,6 +608,105 @@ async function seedAssessments() {
         title: 'Choose the statement that best describes your mood for the past ONE (1) WEEK',
       },
     ]);
+
+  //
+  // ASSIST
+  //
+  const assistAssessment = (await db.select().from(assessmentsTable)
+    .where(eq(assessmentsTable.name, 'ASSIST'))
+    .get())!;
+  const assistAssessmentSection1 = await db.insert(assessmentSectionsTable)
+    .values([
+      {
+        assessmentId: assistAssessment.id,
+        type: ASSESSMENT_SECTION_TYPES.STANDARD,
+        title: 'At any point in your life, have you ever used...',
+      },
+    ])
+    .returning()
+    .get();
+
+  await db.insert(assessmentSectionAnswersTable)
+    .values([
+      {
+        assessmentSectionId: assistAssessmentSection1.id,
+        displayOrder: 0,
+        title: 'No',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '0',
+      },
+      {
+        assessmentSectionId: assistAssessmentSection1.id,
+        displayOrder: 1,
+        title: 'Yes',
+        valueType: ASSESSMENT_SECTION_ANSWER_VALUE_TYPES.NUMBER,
+        value: '3',
+      },
+    ]);
+
+  await db.insert(assessmentSectionQuestionsTable)
+    .values([
+      {
+        assessmentSectionId: assistAssessmentSection1.id,
+        disorderId: substanceUseDisorder.id,
+        displayOrder: 0,
+        title: 'cannabis (marijuana, pot, grass, hash, etc.)?',
+      },
+      {
+        assessmentSectionId: assistAssessmentSection1.id,
+        disorderId: substanceUseDisorder.id,
+        displayOrder: 1,
+        title: 'cocaine (coke, crack, etc.)?',
+      },
+      {
+        assessmentSectionId: assistAssessmentSection1.id,
+        disorderId: substanceUseDisorder.id,
+        displayOrder: 2,
+        title: 'prescription stimulants just for the feeling, more than prescribed, or that were not prescribed for you. (Ritalin, Adderall, diet pills, etc.)?',
+      },
+      {
+        assessmentSectionId: assistAssessmentSection1.id,
+        disorderId: substanceUseDisorder.id,
+        displayOrder: 3,
+        title: 'methamphetamine (meth, crystal, speed, ecstasy, molly, etc.)?',
+      },
+      {
+        assessmentSectionId: assistAssessmentSection1.id,
+        disorderId: substanceUseDisorder.id,
+        displayOrder: 4,
+        title: 'inhalants (nitrous, glue, paint thinner, poppers, whippets, etc.)?',
+      },
+      {
+        assessmentSectionId: assistAssessmentSection1.id,
+        disorderId: substanceUseDisorder.id,
+        displayOrder: 5,
+        title: 'sedatives just for the feeling, more than prescribed, or that were not prescribed for you. (sleeping pills, Valium, Xanax, tranquilizers, benzos, etc.)?',
+      },
+      {
+        assessmentSectionId: assistAssessmentSection1.id,
+        disorderId: substanceUseDisorder.id,
+        displayOrder: 6,
+        title: 'hallucinogens (LSD, acid, mushrooms, PCP, Special K, ecstasy, etc.)?',
+      },
+      {
+        assessmentSectionId: assistAssessmentSection1.id,
+        disorderId: substanceUseDisorder.id,
+        displayOrder: 7,
+        title: 'street opioids (heroin, opium, etc.)?',
+      },
+      {
+        assessmentSectionId: assistAssessmentSection1.id,
+        disorderId: substanceUseDisorder.id,
+        displayOrder: 8,
+        title: 'prescription opioids just for the feeling, more than prescribed, or that were not prescribed for you. (Fentanyl, Oxycodone, OxyContin, Percocet, Vicodin, methadone, Buprenorphine, etc.)?',
+      },
+      {
+        assessmentSectionId: assistAssessmentSection1.id,
+        disorderId: substanceUseDisorder.id,
+        displayOrder: 9,
+        title: 'any other drug(s) to get high?',
+      },
+    ]);
 }
 
 async function seedUsers() {
