@@ -143,10 +143,10 @@ export function registerAssessmentsEndpoints(app) {
   //
   // Get assessment instance by slug.
   //
-  // curl -s http://localhost:3000/v1/assessment-instances/SLUG123 | jq
+  // curl -s http://localhost:3000/v1/assessment-instance-slugs/SLUG123 | jq
   //
   app.get(
-    '/v1/assessment-instances/:assessmentInstanceSlug',
+    '/v1/assessment-instance-slugs/:assessmentInstanceSlug',
     validate({
       params: {
         assessmentInstanceSlug: z.string(),
