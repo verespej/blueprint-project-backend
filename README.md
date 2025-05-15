@@ -7,6 +7,7 @@ This is the Blooprint API server.
 
 You need to have node.js installed. This app was built and tested using v23. It likely works with other versions, but that hasn't been tested.
 
+Get started by doing:
 ```
 git clone https://github.com/verespej/blueprint-project-backend.git
 cd blueprint-project-backend

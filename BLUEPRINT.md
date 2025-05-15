@@ -2,6 +2,8 @@
 
 This doc contains responses to the requested information in the [Blueprint exercise prompt](https://github.com/blueprinthq/coding-exercise).
 
+Be sure to also see the [project reqs write-up for the web app](https://github.com/verespej/blueprint-project-frontend/blob/main/BLUEPRINT.md). Much of the content is unique in each.
+
 
 ## Problem description
 
@@ -65,7 +67,7 @@ The DB is structured in a way that's meant to be flexible in the functionality i
 
 I included a light rules engine to make automations flexible. It should be relatively easy to add new types of automations and triggering events.
 
-If I were to spend additional time, I'd work on items in [TODO.md](./TODO.md). I think a good next step would be deployment because it doesn't feel like there much point of this app if it only runs locally.
+If I were to spend additional time, I'd work on items in [TODO.md](./TODO.md). I think a good next step would be deployment because it doesn't feel like there's much of a point to this app if it only runs locally.
 
 There's a lot that needs to be addressed to reach an acceptable deployed state. These are the first 3 things I'd work on:
 
