@@ -6,6 +6,7 @@ import '#config/env';
 import {
   ASSESSMENT_SECTION_ANSWER_VALUE_TYPES,
   ASSESSMENT_SECTION_TYPES,
+  assessmentInstancesTable,
   assessmentSectionAnswersTable,
   assessmentSectionQuestionsTable,
   assessmentSectionsTable,
@@ -21,6 +22,7 @@ import {
   USER_TYPES,
   usersTable,
 } from '#src/db';
+import { generateSlug } from '#src/utils/slugs';
 
 async function seedDisorders() {
   await db.insert(disordersTable)
@@ -736,6 +738,18 @@ async function seedUsers() {
       onboardedAt: new Date().toISOString(),
       patientId: patient.id,
       providerId: provider.id,
+    });
+
+  const bpdsAssessment = (await db.select().from(assessmentsTable)
+    .where(eq(assessmentsTable.name, 'BPDS'))
+    .get())!;
+  await db.insert(assessmentInstancesTable)
+    .values({
+      providerId: provider.id,
+      patientId: patient.id,
+      assessmentId: bpdsAssessment.id,
+      slug: generateSlug(),
+      sentAt: new Date().toISOString(),
     });
 }
 
