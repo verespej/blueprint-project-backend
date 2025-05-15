@@ -49,10 +49,10 @@ The SQL DB contains the structure needed to support things like:
 
 Here're some technical design choices and reasoning:
 
-- **SQLite**: Quick to start and relatively easy to swap out for alternative SQL DBs later. I don't have a strong reason for not using no-SQL. I had to make a decision, so went with something familiar and my understanding is that Blueprint uses Postgres.
-- **Drizzle**: This is a great module that provides a DB interface that stays close to the DB. ORMs are often heavier than needed and can create a lot of ways to shoot ourselves in our feet. Drizzle supports other SQL DBs, so it should help make it easier to wap SQLite for e.g. Postgres if ever desired.
-- **Node.js**: It does the job of running a server well, has a vast ecosystem, is well supported by all the major cloud providers, etc. I also personally enjoy working with JS/TS, making it a natural choice for me.
-- **REST**: Quick and simple. Given the nature of the data, I could definitely see GraphQL being useful down the line. But, at this stage it feels like it'd be more overhead than value.
+- **[SQLite](https://sqlite.org/)**: Quick to start and relatively easy to swap out for alternative SQL DBs later. I don't have a strong reason for not using no-SQL. I had to make a decision, so went with something familiar and my understanding is that Blueprint uses Postgres.
+- **[Drizzle](https://orm.drizzle.team/)**: This is a great module that provides a DB interface that stays close to the DB. ORMs are often heavier than needed and can create a lot of ways to shoot ourselves in our feet. Drizzle supports other SQL DBs, so it should help make it easier to wap SQLite for e.g. Postgres if ever desired.
+- **[Node.js](https://nodejs.org/)**: It does the job of running a server well, has a vast ecosystem, is well supported by all the major cloud providers, etc. I also personally enjoy working with JS/TS, making it a natural choice for me.
+- **[REST](https://en.wikipedia.org/wiki/REST)**: Quick and simple. Given the nature of the data, I could definitely see GraphQL being useful down the line. But, at this stage it feels like it'd be more overhead than value.
 
 The DB is structured in a way that's meant to be flexible in the functionality it allows for. Key structural elements are:
 
@@ -104,8 +104,8 @@ All of these would require evaluation of benefit, risk, and time requirement, th
 ## Personal links
 
 - Profiles:
-    - [LinkedIn](https://www.linkedin.com/in/verespej/)
-    - [X](https://x.com/HVerespej)
+    - [LinkedIn: verespej](https://www.linkedin.com/in/verespej/)
+    - [X: hverespej](https://x.com/hverespej)
 - Other code:
     - Other code worth seeing is in private repos
     - Feel free to request access and send me your github username
